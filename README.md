@@ -6,11 +6,11 @@ Este repositório contém o **Projeto Integrador** desenvolvido durante o segund
 ---
 
 ## 👥 Participantes do Grupo
-- Rodolfo Mendes  
-- Matheus Alexandre Clemente Rodrigues
-- Rafael Cerqueira da Silva
-- Valdemir Valentin Santos
-- Lucas Brina
+- [Rodolfo Mendes](https://github.com/RodolfoMendes94)
+- [Matheus Alexandre Clemente Rodrigues](https://github.com/Maltthael)
+- [Rafael Cerqueira da Silva](https://github.com/rrafaelcerqueira)
+- [Valdemir Valentin Santos](https://github.com/valdemirvalentin07)
+- [Lucas Brina](https://github.com/LucasCBrina)
 
 ---
 
