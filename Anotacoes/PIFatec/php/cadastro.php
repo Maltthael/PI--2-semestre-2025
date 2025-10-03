@@ -4,15 +4,22 @@ include 'conecta_bd.php';
 $email = $_POST['email'];
 $senha = $_POST['senha'];
 $endereco = $_POST['endereco'];
+$numero = $_POST['numero'];
+$bairro = $_POST['bairro'];
+$cep = $_POST['cep'];
 $cpf = $_POST['cpf'];
 
-try{
-    $sql = 'INSERT INTO pdo(id, email, senha) VALUES ('', '$email', '$senha', '$endereco', '$cpf')';    
-}catch(PDOException $e){
-    echo $sql.'<br>'.$e->getMessage();
+$stmt = $conn->prepare("INSERT INTO cliente (email, senha, endereco, numero, bairro, cep, cpf) 
+                        VALUES (?, ?, ?, ?, ?, ?, ?)");
+
+$stmt->bind_param("sssssss", $email, $senha, $endereco, $numero, $bairro, $cep, $cpf);
+
+if ($stmt->execute()) {
+    echo "Cadastro realizado com sucesso!";
+} else {
+    echo "Erro ao cadastrar: " . $stmt->error;
 }
 
-$conn = null;
-    
-
+$stmt->close();
+$conn->close();
 ?>
