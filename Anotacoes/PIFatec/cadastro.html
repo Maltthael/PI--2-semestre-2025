@@ -47,10 +47,10 @@
     <div class="centraliza">
         <div class="fundo-cadastro">
             <h2 style="text-align: center; margin-bottom: 30px; color: #333; ;">Cadastrar-se</h2>
-            <form class="row g-3" method="POST" action="php/cadastro.php">
+            <form class="row g-3" method="post" action='php/cadastro.php'>
                 <div class="col-md-6">
                     <label for="inputEmail4" class="form-label">Nome</label>
-                    <input type="email" class="form-control" name="nome">
+                    <input type="text" class="form-control" name="nome">
                 </div>
                 <div class="col-md-6">
                     <label for="inputEmail4" class="form-label">Email</label>
@@ -77,19 +77,16 @@
                     <input type="text" class="form-control" placeholder="Digite seu CEP (Apenas números)" name="cep">
                 </div>
                 <div class="col-6">
-                    <form>
                         <button class="btn btn-primary">
                             <a action="">Verificar CEP</a>
                         </button>
-                    </form>
                 </div>
-
                 <div class="col-12">
                     <label for="inputAddress" class="form-label">CPF</label>
                     <input type="text" class="form-control" id="inputAddress" placeholder="Digite seu CPF" name="cpf">
                 </div>
                 <div style="margin-top: 20px; text-align: center;">
-                    <a href="entrar.html">
+                    <a href="/PI--2-SEMESTRE-2025/Anotacoes/PIFatec/entrar.html">
                     <button type="submit" class="btn-cadastrar btn-entrar">Cadastrar-se</button>
                     </a>
                 </div>
