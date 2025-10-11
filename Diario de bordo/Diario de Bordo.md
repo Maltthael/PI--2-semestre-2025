@@ -24,4 +24,7 @@
 ---
 
 ### 30/09
-- Criação de esboço e modelos conceituais/lógicos do banco de dados.  
+- Criação de esboço e modelos conceituais/lógicos do banco de dados.
+
+### 11/10
+- Reuniâo em grupo relizada para concluirmos a parte da documentação sobre os diagramas caso de uso, classes e também definimos os requisitos funcionais e não funcionais.
