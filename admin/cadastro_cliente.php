@@ -1,5 +1,5 @@
 <?php
-require_once "/php/conecta_bd.php";
+require_once ".../Classes/conecta_bd.php";
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
