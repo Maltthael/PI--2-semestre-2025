@@ -20,6 +20,10 @@ class Login {
             ];
         }
 
+
+
+
+
         // Tenta como cliente
         $stmt = $this->pdo->prepare("SELECT id, nome, email, senha FROM cliente WHERE email = ? AND senha = ?");
         $stmt->execute([$email, $senha]);
@@ -32,6 +36,7 @@ class Login {
                 'tipo' => 'cliente'
             ];
         }
+
 
         return false; // nenhum encontrado
     }

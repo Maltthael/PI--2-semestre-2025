@@ -1,3 +1,36 @@
+
+<?php
+require_once '../Classes/conecta.php';
+require_once '../Classes/Login.php';
+session_start();
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $email = $_POST['email'];
+    $senha = $_POST['senha'];
+
+    // Usa o singleton da conecta_bd
+    $conexao = conecta_bd::getInstance();
+    $login = new Login($conexao);
+
+    $usuario = $login->autenticar($email, $senha);
+
+    if ($usuario) {
+        // Salva sessão
+        $_SESSION['id'] = $usuario['id'];
+        $_SESSION['nome'] = $usuario['nome'];
+        $_SESSION['tipo'] = $usuario['tipo'];
+
+        // Redireciona dependendo do tipo
+        if ($usuario['tipo'] === 'admin') {
+            header("Location: ../admin/index.php");
+            exit;
+        } else { // cliente
+            header("Location: index.html");
+            exit;
+        }
+    } else {
+        echo "<script>alert('Email ou senha incorretos!'); window.location.href='index.php';</script>";
+
 <?php 
 
 session_start();
@@ -29,6 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     } else {
         $erro = 'Email ou senha incorretos!';
+
     }
 }
 ?>
