@@ -1,3 +1,4 @@
+
 <?php
 require_once '../Classes/conecta.php';
 require_once '../Classes/Login.php';
@@ -29,6 +30,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     } else {
         echo "<script>alert('Email ou senha incorretos!'); window.location.href='index.php';</script>";
+
+<?php 
+
+session_start();
+
+require_once '../Classes/conecta.php';
+require_once '../Classes/login.php';
+
+$erro = '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $email = $_POST['email'] ?? '';
+    $senha = $_POST['senha'] ?? '';
+
+    $conecta = conecta_bd::getInstance();
+    $login = new Login($conecta);
+
+    $resultado = $login->autenticar($email, $senha);
+
+    if ($resultado) {
+        $_SESSION['usuario_id'] = $resultado['id'];
+        $_SESSION['usuario_nome'] = $resultado['nome'];
+        $_SESSION['usuario_tipo'] = $resultado['tipo'];
+
+        if ($resultado['tipo'] === 'admin') {
+            header('Location: admin/dashboard.php');
+        } else {
+            header('Location: index.php');
+        }
+        exit;
+    } else {
+        $erro = 'Email ou senha incorretos!';
+
     }
 }
 ?>

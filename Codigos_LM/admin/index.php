@@ -1,3 +1,7 @@
+<?php 
+
+require_once '../Classes/conecta.php';
+?>
 
 
 <!DOCTYPE html>
