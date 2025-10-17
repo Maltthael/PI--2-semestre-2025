@@ -11,9 +11,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = $_POST['email'] ?? '';
     $senha = $_POST['senha'] ?? '';
 
-    $conecta = conecta_bd::getInstance();
-    $login = new Login($conecta);
+  //Conexão PDO
 
+    $conecta = conecta_bd::getInstance();
+    $pdo = $conecta->getConnection();
+    $login = new Login();
+
+    // Tenta autenticar (admin ou cliente)
     $resultado = $login->autenticar($email, $senha);
 
     if ($resultado) {
@@ -22,17 +26,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['usuario_tipo'] = $resultado['tipo'];
 
         if ($resultado['tipo'] === 'admin') {
-            header('Location: admin/dashboard.php');
+            header('Location: ../admin/index.php');
         } else {
-            header('Location: index.php');
+            header('Location: index.html');
         }
         exit;
     } else {
         $erro = 'Email ou senha incorretos!';
     }
-}
+ }
 ?>
-
 
 
 
@@ -76,6 +79,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </nav>
     </div>
+    <?php if (!empty($erro)) { ?>
+    <div id="msgErro" class="alert alert-danger text-center" style="margin-top:20px;">
+        <?= htmlspecialchars($erro) ?>
+    </div>
+
+    <script>
+        // Faz a mensagem aparecer suavemente
+        const msg = document.getElementById("msgErro");
+        msg.style.opacity = "0";
+        msg.style.transition = "opacity 0.5s ease";
+
+        setTimeout(() => {
+            msg.style.opacity = "1"; // aparece suavemente
+        }, 100);
+
+        // Depois de 3 segundos, some lentamente
+        setTimeout(() => {
+            msg.style.opacity = "0";
+            setTimeout(() => msg.remove(), 500); // remove do DOM
+        }, 3000);
+    </script>
+<?php } ?>
+
+
     <form  method="POST" action="">
     <div class="centraliza">
         <div class="fundo">
@@ -106,11 +133,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
     </form>
-    <?php if(isset($erro)) { ?>
-    <div class="alert alert-danger text-center" style="margin-top:20px;">
-        <?= htmlspecialchars($erro) ?>
-    </div>
-<?php } ?>
+       
+    
     <footer class="text-center py-4 footer" style="color: white;">
         <div class="container">
             <div class="row">
