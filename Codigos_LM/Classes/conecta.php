@@ -14,6 +14,12 @@ class conecta_bd {
     }
 
     // Instância única
+
+    /* Evita múltiplas conexões desnecessárias ao banco.
+       Economiza recursos do servidor.
+       Mantém consistência em transações e consultas.
+       Facilita reutilizar o mesmo PDO em várias classes*/
+       
     public static function getInstance() {
         if (self::$instance === null) {
             self::$instance = new conecta_bd();
