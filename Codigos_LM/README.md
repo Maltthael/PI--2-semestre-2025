@@ -1,7 +1,7 @@
 # 📌 PI — FATEC Araras 2025  
 ## 2º Semestre — Desenvolvimento de Software Multiplataforma (DSM)  
 
-Este repositório contém o **Projeto Integrador** desenvolvido durante o segundo semestre do curso de DSM (Desenvolvimento de Software Multiplataforma).  
+Este repositório contém o **Projeto Integrador** desenvolvido durante o segundo semestre do curso de DSM (Desenvolvimento de Software Multiplataforma), sob orientação do professor **Olando Saraiva Junior**.  
 
 ---
 
