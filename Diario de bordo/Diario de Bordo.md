@@ -28,3 +28,13 @@
 
 ### 11/10
 - Reunião em grupo relizada para concluirmos a parte da documentação sobre os diagramas caso de uso, classes e também definimos os requisitos funcionais e não funcionais.
+
+---
+
+### 14/10 
+- Foi reunido membros do grupo com a função de criar o controle de acesso do nosso sistema.
+
+---
+
+### 21/10
+- Criação de esboço de trigger no banco de dados e refinamento do banco.
