@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $cpf      = $_POST['cpf'] ?? '';
 
     // conexão
-  /*  $conecta = conecta_bd::getInstance();*/
+   $conecta = conecta_bd::getInstance();
      
     // cliente com os dados recebidos
     $cliente = new Cliente($nome, $email, $senha, $endereco, $numero, $bairro,$cidade,$estado, $cep, $cpf);

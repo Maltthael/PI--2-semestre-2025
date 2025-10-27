@@ -5,10 +5,10 @@ class Login {
     private $emailAdmin = 'adminLM@gmail.com';
     private $senhaAdmin = 'Admin2025.';
 
-  /*      public function __construct() {
+        public function __construct() {
         $this->pdo = conecta_bd::getInstance()->getConnection(); 
     } // Puxa conexão pdo única 
-*/
+
 
     // Verifica as credenciais 
     public function verificar_credenciais($email, $senha) {
@@ -40,7 +40,7 @@ class Login {
             return $admin;
         }
         // Tenta como cliente
-        $stmt = $this->pdo->prepare("SELECT id, nome, email, senha FROM cliente WHERE email = ? AND senha = ?");
+        $stmt = $this->pdo->prepare("SELECT nome, email, senha FROM cliente WHERE email = ? AND senha = ?");
         $stmt->execute([$email, $senha]);
         $cliente = $stmt->fetch(PDO::FETCH_ASSOC);
 
