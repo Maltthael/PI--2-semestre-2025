@@ -38,3 +38,8 @@
 
 ### 21/10
 - Criação de esboço de trigger no banco de dados e refinamento do banco.
+
+---
+
+### 28/10
+- Criado a tabela para visualização dos clientes a partir do login do adm.
