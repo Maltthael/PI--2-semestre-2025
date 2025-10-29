@@ -11,14 +11,14 @@ class Admin  {
             $sql = "UPDATE clientes SET 
                         nome = ?, email = ?, endereco = ?, numero = ?, 
                         bairro = ?, cep = ?, cidade = ?, estado = ?, cpf = ?
-                    WHERE id = ?";
+                    WHERE id_cliente = ?";
             
             $stmt = $pdo->prepare($sql);
 
             $stmt->execute([
                 $dados['nome'], $dados['email'], $dados['endereco'], $dados['numero'], 
                 $dados['bairro'], $dados['cep'], $dados['cidade'], $dados['estado'], $dados['cpf'],
-                (int)$dados['id'] 
+                (int)$dados['id_cliente'] 
             ]);
 
             return true;
@@ -31,7 +31,7 @@ class Admin  {
    public static function excluir($id) {
         try {
             $pdo = conecta_bd::getInstance()->getConnection();
-            $sql = "DELETE FROM cliente WHERE id = ?"; 
+            $sql = "DELETE FROM cliente WHERE id_cliente = ?"; 
             $stmt = $pdo->prepare($sql);
             $stmt->execute([(int)$id]);
             return true;
