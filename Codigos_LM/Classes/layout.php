@@ -229,7 +229,7 @@ $navbar_adm_relatorio = '<nav class="navbar navbar-expand-lg fixed-top navbar-cu
 </nav>';
 
 
-$navbar_adm_clientes  = '<nav class="navbar navbar-expand-lg fixed-top navbar-custom">
+$navbar_adm_clientes  = '<<nav class="navbar navbar-expand-lg fixed-top navbar-custom">
   <div class="container-fluid">
 
     <a class="navbar-brand" href="index.html">

@@ -28,16 +28,13 @@ class Admin  {
         }
     }
 
-    public static function excluir($cliente) {
+   public static function excluir($id) {
         try {
             $pdo = conecta_bd::getInstance()->getConnection();
-            
-            $sql = "DELETE FROM clientes WHERE id = ?";
+            $sql = "DELETE FROM cliente WHERE id = ?"; 
             $stmt = $pdo->prepare($sql);
-            $stmt->execute([(int)$cliente]);
-            
+            $stmt->execute([(int)$id]);
             return true;
-
         } catch (PDOException $e) {
             throw new PDOException("Erro ao excluir cliente: " . $e->getMessage());
         }
@@ -47,4 +44,5 @@ class Admin  {
 
 
 ?>
+ 
  
