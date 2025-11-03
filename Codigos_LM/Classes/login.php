@@ -2,7 +2,7 @@
 class Login {
     private $pdo;
 
-    private $emailAdmin = 'adminLM@gmail.com';
+    private $emailAdmin = 'adminLM@gmail.com'; //Login de administrador controlado pelo prestador do sistema
     private $senhaAdmin = 'Admin2025.';
 
        public function __construct() {
