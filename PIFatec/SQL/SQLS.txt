@@ -1,0 +1,76 @@
+-- ========================
+-- TABELA: ADM
+-- ========================
+CREATE TABLE adm (
+    id_adm INT NOT NULL AUTO_INCREMENT,
+    nome VARCHAR(255) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    senha VARCHAR(255) NOT NULL,
+    PRIMARY KEY (id_adm)
+) ENGINE=InnoDB;
+
+-- ========================
+-- TABELA: CLIENTE
+-- ========================
+CREATE TABLE cliente (
+    id_cliente INT NOT NULL AUTO_INCREMENT,
+    email VARCHAR(50) NOT NULL UNIQUE,
+    senha VARCHAR(50) NOT NULL,
+    endereco VARCHAR(100),
+    numero VARCHAR(10),
+    bairro VARCHAR(100),
+    cep VARCHAR(8),
+    cidade VARCHAR(50),
+    estado VARCHAR(10),
+    cpf VARCHAR(11) UNIQUE,
+    chamado VARCHAR(255),
+    PRIMARY KEY (id_cliente)
+) ENGINE=InnoDB;
+
+-- ========================
+-- TABELA: ESTOQUE
+-- ========================
+CREATE TABLE estoque (
+    id_estoque INT NOT NULL AUTO_INCREMENT,
+    nome_produto VARCHAR(255) NOT NULL,
+    quantidade INT NOT NULL,
+    tipo VARCHAR(255),
+    precounitario FLOAT NOT NULL,
+    status ENUM('disponivel', 'indisponivel') DEFAULT 'disponivel',
+    fk_adm_id_adm INT NOT NULL,
+    PRIMARY KEY (id_estoque),
+    FOREIGN KEY (fk_adm_id_adm) REFERENCES adm(id_adm)
+        ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB;
+
+-- ========================
+-- TABELA: VENDAS
+-- ========================
+CREATE TABLE vendas (
+    id_vendas INT NOT NULL AUTO_INCREMENT,
+    data_venda DATE NOT NULL,
+    valor_total DECIMAL(10,2) NOT NULL,
+    fk_cliente_id_cliente INT NOT NULL,
+    fk_adm_id_adm INT NOT NULL,
+    PRIMARY KEY (id_vendas),
+    FOREIGN KEY (fk_cliente_id_cliente) REFERENCES cliente(id_cliente)
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (fk_adm_id_adm) REFERENCES adm(id_adm)
+        ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB;
+
+-- ========================
+-- TABELA: ITENS_VENDA
+-- ========================
+CREATE TABLE itens_venda (
+    id_itens_vendas INT NOT NULL AUTO_INCREMENT,
+    quant1_vendida INT NOT NULL,
+    precounitario_venda DECIMAL(10,2) NOT NULL,
+    fk_vendas_id_venda INT NOT NULL,
+    fk_estoque_id_estoque INT NOT NULL,
+    PRIMARY KEY (id_itens_vendas),
+    FOREIGN KEY (fk_vendas_id_venda) REFERENCES vendas(id_vendas)
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (fk_estoque_id_estoque) REFERENCES estoque(id_estoque)
+        ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB;

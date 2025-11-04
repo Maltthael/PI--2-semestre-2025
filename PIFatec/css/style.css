@@ -1,0 +1,285 @@
+/* ===== RESET E ESTILOS GERAIS ===== */
+#ativo{
+    background-color: #a200b7 ;
+    color: white ;
+}
+
+
+html, body {
+    height: 100%;
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f5f5f5;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    padding-top: 50px; /* espaço navbar */
+}
+
+/* ===== CONTEÚDO PRINCIPAL ===== */
+main, .container {
+    flex: 1;
+    padding-bottom: 60px; /* espaço footer */
+}
+
+/* ===== NAVBAR ===== */
+
+
+.navbar-custom.scrolled {
+    height: 80px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    background: linear-gradient(90deg, rgba(0,0,128,0.7) 0%, rgba(49,15,75,0.7) 50%, rgba(162,0,183,0.7) 100%);
+}
+
+.navbar-custom .container-fluid {
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+}
+
+.navbar-nav {
+    align-items: center;
+    margin-left: auto !important;
+}
+
+.nav-link {
+    padding: 0.5rem 1rem;
+    transition: all 0.2s ease;
+}
+
+.nav-link:hover {
+    transform: translateY(-2px);
+}
+
+/* LOGO */
+.home-link img, .footer img, .navbar img {
+    mix-blend-mode: multiply;
+    transition: transform 0.3s ease;
+}
+
+.home-link img {
+    width: 220px;
+    height: auto;
+    filter: drop-shadow(0 0 3px white);
+}
+
+.home-link img:hover {
+    transform: scale(1.05);
+}
+
+/* BOTÃO ENTRAR */
+.btn-entrar {
+    background-color: rgba(255,255,255,0.9);
+    color: #000;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.btn-entrar:hover {
+    background-color: white;
+    transform: scale(1.05);
+}
+
+/* BARRA DE PESQUISA */
+.comeco, .final {
+    border: none;
+    padding: 5px 15px;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+}
+
+.comeco {
+    border-radius: 12px 0 0 12px;
+    background-color: rgba(255,255,255,0.9);
+}
+
+.final {
+    border-radius: 0 12px 12px 0;
+    background-color: rgba(255,255,255,0.95);
+}
+
+.final:hover {
+    background-color: white;
+    transform: scale(1.02);
+}
+
+/* CARRINHO */
+.carrinho {
+    width: 50px;
+    display: flex;
+    justify-content: center;
+}
+
+/* ===== FOOTER ===== */
+.footer {
+    margin-top: auto;
+    background: linear-gradient(90deg, rgba(0,0,128,0.9) 0%, rgba(49,15,75,0.9) 50%, rgba(162,0,183,0.9) 100%);
+    color: white;
+    text-align: center;
+    padding: 20px 0;
+}
+
+/* ===== FORMULÁRIOS ===== */
+.fundo, .fundo-cadastro {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    padding: 40px;
+}
+
+.fundo { width: 350px; }
+.fundo-cadastro { width: 700px; }
+
+.form-group { margin-bottom: 20px; }
+
+.form-control {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #a200b7;
+    box-shadow: 0 0 0 2px rgba(162,0,183,0.2);
+}
+
+.btn-login {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    background: linear-gradient(90deg, rgba(0,0,128,0.9), rgba(49,15,75,0.9));
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.btn-login:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.btn-cadastrar {
+    background: transparent;
+    color: #a200b7;
+    border: 1px solid #a200b7;
+    padding: 10px 20px;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+.btn-cadastrar:hover {
+    background: rgba(162,0,183,0.1) !important;
+    transform: scale(1.02);
+}
+
+.google img { width: 30px !important; height: 30px !important; }
+
+.btn_verifica {
+    display: flex;
+    justify-content: flex-end;
+}
+
+/* ===== CENTRALIZAÇÃO ===== */
+.centraliza, .centraliza-2 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.centraliza { height: 100vh; }
+
+/* ===== BOTÕES E SETAS ===== */
+.fundo-seta {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(0,0,0,0.5);
+    border: none;
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+}
+
+.fundo-seta:hover { background-color: rgba(0,0,0,0.8); }
+
+/* ===== RESPONSIVIDADE ===== */
+/* Desktop (lg+) */
+@media (min-width: 992px) {
+    .navbar-toggler { display: none; }
+    .navbar-custom .navbar-collapse { display: flex !important; flex-grow: 1; justify-content: center; }
+    .navbar-custom form { position: absolute; left: 50%; transform: translateX(-50%); width: 500px; max-width: 40%; }
+}
+
+/* Tablet (md) */
+@media (max-width: 991.98px) {
+    .navbar-custom { height: auto !important; }
+    .navbar-custom .container-fluid { flex-wrap: wrap; }
+    .navbar-collapse { order: 3; width: 100%; margin-top: 10px; }
+    .navbar-custom form { margin: 10px 0 !important; max-width: 100% !important; }
+    .navbar-nav { width: 100%; }
+}
+
+/* Mobile (sm) */
+@media (max-width: 767.98px) {
+    .home-link img { width: 180px; }
+    .navbar-nav { flex-direction: row !important; flex-wrap: wrap; justify-content: space-around; }
+    .nav-item { margin: 5px; }
+    .btn-entrar { width: 100%; margin-top: 10px; }
+}
+
+/* Mobile pequeno (xs) */
+@media (max-width: 575.98px) {
+    .home-link img { width: 160px; }
+    .comeco, .final { padding: 8px 12px; }
+    .navbar-nav { flex-direction: column !important; align-items: flex-start; }
+}
+
+.navbar-custom {
+  background-color: #a200b7;; /* mesma cor escura */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  
+}
+
+.navbar-custom .nav-link,
+.navbar-custom .navbar-brand {
+  color: #fff !important;
+}
+
+.navbar-custom .nav-link:hover {
+  color: #f8f9fa;
+}
+
+.footer {
+  padding-top: 10px !important;
+  padding-bottom: 10px !important;
+}
+.footer img {
+  width: 160px;
+}
+
+
+/*tabela pizza*/
+
+.grafico_pizza{
+    margin-top: 20px; 
+    height: 500px; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+}
+
+
