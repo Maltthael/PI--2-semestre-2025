@@ -39,7 +39,7 @@ class Login {
             return $admin;
         }
         // Tenta como cliente
-        $stmt = $this->pdo->prepare("SELECT id, nome, email, senha FROM cliente WHERE email = ? AND senha = ?");
+        $stmt = $this->pdo->prepare("SELECT id_cliente, nome, email, senha FROM cliente WHERE email = ? AND senha = ?");
         $stmt->execute([$email, $senha]);
         $cliente = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -47,14 +47,14 @@ class Login {
         if ($cliente) 
             { 
             $_SESSION["logged_in"] = true;
-            $_SESSION["usuario_id"] = $cliente['id'];
+            $_SESSION["usuario_id"] = $cliente['id_cliente'];
             $_SESSION["usuario_nome"] = $cliente['nome'];
             $_SESSION["usuario_tipo"] = 'cliente';
             $_SESSION["usuario_email"] = $cliente['email'];
 
 
             return [
-                'id' => $cliente['id'],
+                'id' => $cliente['id_cliente'],
                 'nome' => $cliente['nome'],
                 'tipo' => 'cliente'
             ];
