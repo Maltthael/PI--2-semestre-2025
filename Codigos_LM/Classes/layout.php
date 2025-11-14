@@ -153,6 +153,7 @@ $head = '<meta charset="UTF-8">
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.min.js"
         integrity="sha384-RuyvpeZCxMJCqVUGFI0Do1mQrods/hhxYlcVfGPOfQtPJh0JCw12tUAZ/Mv10S7D"
         crossorigin="anonymous"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
         <link rel="stylesheet" href=".../Cliente/css/style.css">
         <link rel="stylesheet" href="../Cliente/css/style.css">
         
@@ -229,7 +230,7 @@ $navbar_adm_relatorio = '<nav class="navbar navbar-expand-lg fixed-top navbar-cu
 </nav>';
 
 
-$navbar_adm_clientes  = '<<nav class="navbar navbar-expand-lg fixed-top navbar-custom">
+$navbar_adm_clientes  = '<nav class="navbar navbar-expand-lg fixed-top navbar-custom">
   <div class="container-fluid">
 
     <a class="navbar-brand" href="index.html">
