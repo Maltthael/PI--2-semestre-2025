@@ -153,7 +153,7 @@
                         <i class="fas fa-pencil-alt"></i>
                       </button>
 
-                      <form action="PHP/excluir.php" method="POST" onsubmit="return confirm('Tem certeza?');" style="display: inline;">
+                      <form action="PHP/excluir_cliente.php" method="POST" onsubmit="return confirm('Tem certeza?');" style="display: inline;">
                         <input type="hidden" name="id_cliente" value="<?= $cliente['id_cliente'] ?>">
                         <button type="submit" class="btn btn-sm btn-outline-danger" title="Excluir">
                           <i class="fas fa-trash"></i>
@@ -181,7 +181,6 @@
           <ul class="pagination justify-content-end mb-0">
             <li class="page-item disabled"><a class="page-link" href="#">Anterior</a></li>
             <li class="page-item active"><a class="page-link" href="#">1</a></li>
-            <li class="page-item"><a class="page-link" href="#">2</a></li>
             <li class="page-item"><a class="page-link" href="#">Próximo</a></li>
           </ul>
         </nav>
@@ -233,7 +232,7 @@
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
         </div>
 
-        <form action="PHP/editar.php" method="POST">
+        <form action="PHP/editar_cliente.php" method="POST">
           <div class="modal-body bg-light">
             <input type="hidden" name="id_cliente" id="editId">
 
