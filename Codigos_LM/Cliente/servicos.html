@@ -14,65 +14,67 @@
 </head>
 
 <body>
-     <nav class="navbar navbar-expand-lg navbar-custom fixed-top">
-  <div class="container-fluid">
-
-    <!-- LOGO -->
-    <a class="navbar-brand" href="index.html">
-      <img src="img/LMinformatica_logo_h (2).svg" alt="Logo" width="200" class="img-fluid">
-    </a>
-
-    <!-- BOTÃO MOBILE -->
-    <button class="navbar-toggler border-0" type="button"
-      data-bs-toggle="collapse" data-bs-target="#navbarContent"
-      aria-controls="navbarContent" aria-expanded="false" aria-label="Alternar navegação">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-
-    <!-- CONTEÚDO NAVBAR -->
-    <div class="collapse navbar-collapse" id="navbarContent">
-
-      <!-- CAMPO DE BUSCA CENTRAL -->
-      <form class="d-flex mx-auto my-2 my-lg-0" style="max-width: 350px; width: 100%;">
-        <input class="form-control rounded-start border-0" type="search" placeholder="Pesquisar" aria-label="Pesquisar">
-        <button class="btn btn-light rounded-end border-0" type="submit">Buscar</button>
-      </form>
-
-      <!-- LINKS E BOTÕES -->
-      <ul class="navbar-nav ms-lg-auto align-items-lg-center mb-2 mb-lg-0">
-
-        <li class="nav-item">
-          <a class="nav-link" href="index.html">Home</a>
-        </li>
-
-        <li class="nav-item">
-          <a class="nav-link active" href="sobre.html">Sobre Nós</a>
-        </li>
-
-        <li class="nav-item">
-          <a class="nav-link" href="servicos.html">Serviços</a>
-        </li>
-
-        <li class="nav-item">
-          <a class="nav-link" href="contato.html">Contato</a>
-        </li>
-
-        <li class="nav-item">
-          <a class="nav-link carrinho d-flex align-items-center" href="carrinho.html">
-            <img src="img/icone_carrinho.svg" alt="Carrinho" width="22" height="22">
-          </a>
-        </li>
-
-        <li class="nav-item">
-          <a href="entrar.html" class="btn btn-entrar ms-lg-3">
-            Entrar
-          </a>
-        </li>
-
-      </ul>
+     <nav class="navbar navbar-custom navbar-expand-lg navbar-dark fixed-top">
+    <div class="container-fluid">
+        <div class="fundo_imagem">
+            <a class="navbar-brand home-link" href="index.html">
+            <a class="navbar-brand home-link" href="index.php">
+                <img src="img/LMinformatica_logo_h (2).svg" alt="Logo" width="220">
+            </a>
+        </div>
+        
+        <button class="navbar-toggler ms-auto border-0 d-lg-none" type="button" 
+                data-bs-toggle="collapse" data-bs-target="#navbarContent" 
+                aria-controls="navbarContent" aria-expanded="false" 
+                aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <div class="collapse navbar-collapse" id="navbarContent">
+            <form class="d-flex my-2 my-lg-0 mx-lg-auto" style="max-width: 350px; width: 100%;">
+                <input class="form-control rounded-start border-0 comeco" type="search" placeholder="Pesquisar">
+                <button class="btn btn-light rounded-end border-0 final" type="submit">Buscar</button>
+            </form>
+            
+            <ul class="navbar-nav ms-lg-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link" href="index.html">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="cadastro.php">Cadastrar</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="sobre.html">Sobre Nós</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="servicos.html">Serviços</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="contato.html">Contato</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link carrinho" href="carrinho.html">
+                        <img src="img/icone_carrinho.svg" alt="Carrinho">
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="entrar.php" class="btn-entrar btn btn-black ms-lg-3">
+                        Entrar
+                    </a>
+                </li>
+            </ul>
+        </div>
     </div>
-  </div>
 </nav>
+    <section class="services-hero">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-8 mx-auto text-center">
+                    <h1 class="display-4 fw-bold mb-4">Nossos Serviços</h1>
+                    <p class="lead">Soluções completas para manter seus equipamentos em perfeito funcionamento</p>
+                </div>
+            </div>
+        </div>
     </section>
     <section class="container main-services py-5">
         <div class="row g-4">

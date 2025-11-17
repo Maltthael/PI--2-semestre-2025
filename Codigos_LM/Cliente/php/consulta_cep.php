@@ -2,7 +2,7 @@
 
 $cep = $_POST['cep'];
 
-$url = "https://viacep.com.br/ws/{$cep}/json/";
+$url = $url = "https://viacep.com.br/ws/{$cep}/json/";
 $json1 = file_get_contents($url);
 
 $json = json_decode($json1);

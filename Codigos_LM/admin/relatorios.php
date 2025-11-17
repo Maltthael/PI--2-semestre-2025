@@ -117,7 +117,7 @@
 
 <?php
 
-  $situacoes = ['Encerrados', 'Abertos', 'Pendente Cliente'];
+  $situacoes = ['Encerrados', 'Abertos', 'Pendente'];
   $quantidades = [45, 30, 25]; // Quantidade de cada tipo
 ?>
 
@@ -181,8 +181,6 @@
 
 
 
-    <?php
-        echo $footer_adm;
-    ?>
+
 </body>
 </html>

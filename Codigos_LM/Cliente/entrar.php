@@ -1,3 +1,44 @@
+<?php 
+
+session_start();
+
+require_once '../Classes/conecta.php';
+require_once '../Classes/login.php';
+
+$erro = '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $email = $_POST['email'] ?? '';
+    $senha = $_POST['senha'] ?? '';
+
+  //Conexão PDO
+
+    $conecta = conecta_bd::getInstance();
+    $pdo = $conecta->getConnection();
+    $login = new Login();
+
+    // Tenta autenticar (admin ou cliente)
+    $resultado = $login->autenticar($email, $senha);
+
+    if ($resultado) {
+        $_SESSION['usuario_id'] = $resultado['id'];
+        $_SESSION['usuario_nome'] = $resultado['nome'];
+        $_SESSION['usuario_tipo'] = $resultado['tipo'];
+
+        if ($resultado['tipo'] === 'admin') {
+            header('Location: ../admin/dashboard.php');
+        } else {
+            header('Location: index.html');
+        }
+        exit;
+    } else {
+        $erro = 'Email ou senha incorretos!';
+    }
+ }
+?>
+
+
+
 <!DOCTYPE html>
 <html lang="pt-br">
 
@@ -38,34 +79,54 @@
         </div>
     </nav>
     </div>
+    <?php if (!empty($erro)) { ?>
+    <div id="msgErro" class="alert alert-danger text-center" style="margin-top:20px;">
+        <?= htmlspecialchars($erro) ?>
+    </div>
+
+    <script>
+        // Faz a mensagem aparecer suavemente
+        const msg = document.getElementById("msgErro");
+        msg.style.opacity = "0";
+        msg.style.transition = "opacity 0.5s ease";
+
+        setTimeout(() => {
+            msg.style.opacity = "1"; // aparece suavemente
+        }, 100);
+
+        // Depois de 3 segundos, some lentamente
+        setTimeout(() => {
+            msg.style.opacity = "0";
+            setTimeout(() => msg.remove(), 500); // remove do DOM
+        }, 3000);
+    </script>
+<?php } ?>
+
+
+    <form  method="POST" action="">
     <div class="centraliza">
         <div class="fundo">
             <h2 style="text-align: center; margin-bottom: 30px; color: #333; ;">Login</h2>
             <div class="form-group">
-                <input type="email" class="form-control" style="border-radius: 5px;" placeholder="Email">
+                <input type="email"  name="email" class="form-control" style="border-radius: 5px;" placeholder="Email" required>
             </div>
             <div class="form-group">
-                <input type="password" class="form-control" style="border-radius: 5px;"  placeholder="Senha">
+                <input type="password"  name="senha" class="form-control" style="border-radius: 5px;"  placeholder="Senha" required>
             </div>
             <button type="submit" class="btn-login">Entrar</button>
             <div style="margin-top: 20px; text-align: center;">
-                <a href="cadastro.html">
+                <a href="cadastro.php">
                     <button type="button" class="btn-cadastrar">Cadastrar-se</button>
                 </a>
             </div>
             <div class="form-group" style="text-align: center; margin-top: 20px;">
                 <a href="#" ; style="color: #a200b7; text-decoration: none;">Esqueceu a senha?</a>
             </div>
-            <div style="display: flex; justify-content: center; margin-top: 30px;">
-                <button type="button" class="btn-entrar final">
-                    <div class="google">
-                        <img src="img/google_Logo.jpg" alt="Google">
-                    </div>
-                    Entrar com Google
-                </button>
-            </div>
         </div>
     </div>
+    </form>
+       
+    
     <footer class="text-center py-4 footer" style="color: white;">
         <div class="container">
             <div class="row">
@@ -104,5 +165,6 @@
         </div>
     </footer>
 </body>
+
 
 </html>
