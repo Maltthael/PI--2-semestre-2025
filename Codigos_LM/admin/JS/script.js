@@ -136,6 +136,7 @@ class GerenciadorClientes {
         this._configurarModalEditar();
         this._configurarModalVisualizar();
         this._configurarBuscaCep();
+        this._configurarBuscaClientes();
     }
     
     _configurarBuscaCep() {
@@ -148,6 +149,142 @@ class GerenciadorClientes {
         if(btn) btn.addEventListener('click', acao);
     }
     
+    _configurarBuscaClientes() {
+        const inputBusca = document.getElementById('inputBusca');
+        if (!inputBusca) return;
+
+        let timeout = null;
+        const tabelaCorpo = document.querySelector('.table.table-hover tbody');
+        
+        const buscar = async () => {
+            const termo = inputBusca.value.trim();
+            const endpoint = `../Classes/admin.php?action=busca_cliente&termo=${encodeURIComponent(termo)}`;
+            
+            tabelaCorpo.innerHTML = '<tr><td colspan="6" class="text-center py-5"><i class="fas fa-spinner fa-spin me-2"></i> Buscando...</td></tr>';
+
+            try {
+                const res = await fetch(endpoint);
+                const clientes = await res.json();
+                
+                if (res.ok) {
+                    this._renderizarClientes(clientes, tabelaCorpo);
+                } else {
+                    tabelaCorpo.innerHTML = `<tr><td colspan="6" class="text-center py-5 text-danger"><i class="fas fa-exclamation-triangle me-2"></i> Erro ao buscar clientes: ${clientes.erro || 'Desconhecido'}</td></tr>`;
+                }
+
+            } catch (e) {
+                tabelaCorpo.innerHTML = `<tr><td colspan="6" class="text-center py-5 text-danger"><i class="fas fa-exclamation-triangle me-2"></i> Erro de comunicação.</td></tr>`;
+            }
+        };
+
+        inputBusca.addEventListener('keyup', (e) => {
+            clearTimeout(timeout);
+            timeout = setTimeout(buscar, 300);
+        });
+        
+        buscar();
+    }
+    
+    _renderizarClientes(clientes, tabelaCorpo) {
+        if (clientes.length === 0) {
+            tabelaCorpo.innerHTML = `
+                <tr>
+                    <td colspan="6" class="text-center py-5">
+                        <i class="fas fa-user-slash fa-3x mb-3 opacity-50 text-muted"></i>
+                        <p class="text-muted">Nenhum cliente encontrado.</p>
+                    </td>
+                </tr>`;
+            return;
+        }
+
+        let html = '';
+        clientes.forEach(cliente => {
+            const inicial = cliente.nome.substring(0, 1).toUpperCase();
+            
+            html += `
+                <tr>
+                    <td class="ps-4">
+                        <div class="d-flex align-items-center">
+                            <div class="avatar-initial shadow-sm bg-primary text-white" style="width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.1rem; margin-right: 15px;">
+                                ${inicial}
+                            </div>
+                            <div>
+                                <div class="fw-bold text-dark">${cliente.nome}</div>
+                                <div class="small text-muted">ID: #${cliente.id_cliente}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="d-flex flex-column">
+                            <span class="text-dark"><i class="far fa-envelope me-1 text-muted"></i> ${cliente.email}</span>
+                            <span class="small text-muted mt-1"><i class="fas fa-phone-alt me-1"></i> ${cliente.telefone || ''}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="d-flex flex-column">
+                            <span class="fw-medium">${cliente.cidade} - ${cliente.estado}</span>
+                            <span class="small text-muted">${cliente.bairro}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge bg-light text-dark border">${cliente.cpf}</span>
+                    </td>
+                    <td class="text-center">
+                        <span class="badge bg-success-subtle text-success rounded-pill">Ativo</span>
+                    </td>
+                    <td class="text-end pe-4">
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-outline-secondary btn-visualizar"
+                                title="Ver Detalhes"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modalVisualizar"
+                                data-nome="${cliente.nome}"
+                                data-email="${cliente.email}"
+                                data-cpf="${cliente.cpf}"
+                                data-endereco="${cliente.endereco}"
+                                data-numero="${cliente.numero}"
+                                data-bairro="${cliente.bairro}"
+                                data-cep="${cliente.cep}"
+                                data-cidade="${cliente.cidade}"
+                                data-estado="${cliente.estado}">
+                                <i class="fas fa-eye"></i>
+                            </button>
+
+                            <button class="btn btn-sm btn-outline-primary"
+                                title="Editar"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modalEditar"
+                                data-id="${cliente.id_cliente}"
+                                data-nome="${cliente.nome}"
+                                data-email="${cliente.email}"
+                                data-telefone="${cliente.telefone || ''}"
+                                data-cpf="${cliente.cpf}"
+                                data-cep="${cliente.cep}"
+                                data-endereco="${cliente.endereco}"
+                                data-numero="${cliente.numero}"
+                                data-bairro="${cliente.bairro}"
+                                data-cidade="${cliente.cidade}"
+                                data-estado="${cliente.estado}">
+                                <i class="fas fa-pencil-alt"></i>
+                            </button>
+
+                            <form action="../Classes/admin.php" method="POST" onsubmit="confirmarExclusao(event, '${cliente.nome}')" style="display: inline;">
+                                <input type="hidden" name="action" value="excluir_cliente">
+                                <input type="hidden" name="id_cliente" value="${cliente.id_cliente}">
+                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Excluir">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        });
+        tabelaCorpo.innerHTML = html;
+        this._configurarModalEditar();
+        this._configurarModalVisualizar();
+    }
+
     _configurarModalEditar() {
         const modal = document.getElementById('modalEditar');
         if (!modal) return;

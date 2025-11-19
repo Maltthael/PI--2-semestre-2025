@@ -3,10 +3,9 @@
 require_once 'conecta.php';
 require_once 'usuario.php';
 
-/* Herda da classe usuário */
 class Cliente extends Usuario {
 
-    private $telefone; // <--- NOVO
+    private $telefone;
     private $endereco;
     private $numero;
     private $bairro;
@@ -15,10 +14,9 @@ class Cliente extends Usuario {
     private $cep;
     private $cpf;
 
-    // Construtor atualizado recebendo $telefone na 3ª posição
     public function __construct($nome, $email, $telefone, $senha, $endereco, $numero, $bairro, $cidade, $estado, $cep, $cpf) {
-        parent::__construct($nome, $email, $senha); /* Puxando a herança */
-        $this->telefone = $telefone; // <--- NOVO
+        parent::__construct($nome, $email, $senha); 
+        $this->telefone = $telefone; 
         $this->endereco = $endereco;
         $this->numero = $numero;
         $this->bairro = $bairro;
@@ -32,18 +30,30 @@ class Cliente extends Usuario {
         try {
             $pdo = $conecta->getConnection();
 
-            // Query atualizada com a coluna telefone
+            $verificarEmail = $pdo->prepare("SELECT id_cliente FROM cliente WHERE email = ?");
+            $verificarEmail->execute([$this->email]);
+
+            if ($verificarEmail->rowCount() > 0) {
+                return "Este e-mail já está cadastrado em nosso sistema. Tente fazer login.";
+            }
+
+            $verificarCpf = $pdo->prepare("SELECT id_cliente FROM cliente WHERE cpf = ?");
+            $verificarCpf->execute([$this->cpf]);
+
+            if ($verificarCpf->rowCount() > 0) {
+                return "O CPF informado já possui cadastro.";
+            }
+
             $sql = "INSERT INTO cliente (nome, email, telefone, senha, endereco, numero, bairro, cidade, estado, cep, cpf) 
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             
             $stmt = $pdo->prepare($sql);
-            
-            // Array de execução atualizado com $this->telefone
-            $resultado = $stmt->execute([
+
+            $stmt->execute([
                 $this->nome,
                 $this->email,
-                $this->telefone, // <--- NOVO
-                $this->senha,
+                $this->telefone,
+                $this->senha, 
                 $this->endereco,
                 $this->numero,
                 $this->bairro,
@@ -53,10 +63,10 @@ class Cliente extends Usuario {
                 $this->cpf
             ]);
             
-            return $resultado;
+            return true;
 
         } catch (PDOException $e) {
-            return "Erro ao cadastrar: " . $e->getMessage();
+            return "Erro técnico ao cadastrar: " . $e->getMessage();
         }
     }
 }

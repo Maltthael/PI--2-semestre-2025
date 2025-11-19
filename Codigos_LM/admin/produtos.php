@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <?php
     session_start();
     include '../Classes/layout.php';
-    require_once '../Classes/conecta.php'; 
+    require_once '../Classes/conecta.php';
     echo $head;
     ?>
     <style>
@@ -17,8 +18,16 @@
             border: 1px solid #dee2e6;
             padding: 2px;
         }
-        .badge-categoria { font-size: 0.8rem; padding: 5px 10px; }
-        .table-hover tbody tr:hover { background-color: #f8f9fa; }
+
+        .badge-categoria {
+            font-size: 0.8rem;
+            padding: 5px 10px;
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
         .upload-area {
             border: 2px dashed #ced4da;
             border-radius: 8px;
@@ -34,10 +43,12 @@
             align-items: center;
             overflow: hidden;
         }
+
         .upload-area:hover {
             border-color: #a200b7;
             background-color: #f1e6f5;
         }
+
         .upload-area img {
             max-width: 100%;
             max-height: 180px;
@@ -51,7 +62,7 @@
     <?php echo $navbar_adm; ?>
 
     <div class="container-fluid p-4">
-        
+
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
                 <h2 class="mb-0 fw-bold text-dark">Estoque de Produtos</h2>
@@ -69,24 +80,25 @@
 
         <div class="card border-0 shadow-sm mb-4">
             <form method="GET" action="" class="card-body d-flex gap-3 flex-wrap align-items-center">
-                
+
                 <div class="input-group" style="max-width: 300px;">
                     <button class="input-group-text bg-white border-end-0" type="submit"><i class="fas fa-search text-muted"></i></button>
                     <input type="text" name="busca" class="form-control border-start-0" placeholder="Buscar produto..." value="<?= htmlspecialchars($_GET['busca'] ?? '') ?>">
                 </div>
-                
+
                 <select class="form-select" name="filtro_categoria" style="max-width: 200px;" onchange="this.form.submit()">
                     <option value="">Todas Categorias</option>
                     <?php
                     try {
                         $pdo = conecta_bd::getInstance()->getConnection();
                         $cats = $pdo->query("SELECT * FROM categorias ORDER BY nome_categoria ASC")->fetchAll(PDO::FETCH_ASSOC);
-                        
+
                         foreach ($cats as $c) {
                             $selected = (isset($_GET['filtro_categoria']) && $_GET['filtro_categoria'] == $c['id_categoria']) ? 'selected' : '';
                             echo "<option value='{$c['id_categoria']}' $selected>{$c['nome_categoria']}</option>";
                         }
-                    } catch (Exception $e) {}
+                    } catch (Exception $e) {
+                    }
                     ?>
                 </select>
 
@@ -97,7 +109,7 @@
                     <option value="descontinuado" <?= (isset($_GET['filtro_status']) && $_GET['filtro_status'] == 'descontinuado') ? 'selected' : '' ?>>Descontinuado</option>
                 </select>
 
-                <?php if(!empty($_GET['busca']) || !empty($_GET['filtro_categoria']) || !empty($_GET['filtro_status'])): ?>
+                <?php if (!empty($_GET['busca']) || !empty($_GET['filtro_categoria']) || !empty($_GET['filtro_status'])): ?>
                     <a href="produtos.php" class="btn btn-light text-muted" title="Limpar Filtros"><i class="fas fa-times"></i></a>
                 <?php endif; ?>
 
@@ -124,72 +136,86 @@
                                 $sql = "SELECT e.*, c.nome_categoria 
                                         FROM estoque e 
                                         INNER JOIN categorias c ON e.fk_id_categoria = c.id_categoria";
-                                
+
                                 $where = [];
                                 $params = [];
-                                if (!empty($_GET['busca'])) { $where[] = "e.nome_produto LIKE ?"; $params[] = "%" . $_GET['busca'] . "%"; }
-                                if (!empty($_GET['filtro_categoria'])) { $where[] = "e.fk_id_categoria = ?"; $params[] = $_GET['filtro_categoria']; }
-                                if (!empty($_GET['filtro_status'])) { $where[] = "e.status = ?"; $params[] = $_GET['filtro_status']; }
-                                if (count($where) > 0) { $sql .= " WHERE " . implode(" AND ", $where); }
+                                if (!empty($_GET['busca'])) {
+                                    $where[] = "e.nome_produto LIKE ?";
+                                    $params[] = "%" . $_GET['busca'] . "%";
+                                }
+                                if (!empty($_GET['filtro_categoria'])) {
+                                    $where[] = "e.fk_id_categoria = ?";
+                                    $params[] = $_GET['filtro_categoria'];
+                                }
+                                if (!empty($_GET['filtro_status'])) {
+                                    $where[] = "e.status = ?";
+                                    $params[] = $_GET['filtro_status'];
+                                }
+                                if (count($where) > 0) {
+                                    $sql .= " WHERE " . implode(" AND ", $where);
+                                }
                                 $sql .= " ORDER BY e.id_produto DESC";
 
                                 $stmt = $pdo->prepare($sql);
                                 $stmt->execute($params);
                                 $produtos = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
                             } catch (Exception $e) {
                                 $produtos = [];
                                 echo "<tr><td colspan='6'>Erro: " . $e->getMessage() . "</td></tr>";
                             }
 
-                            foreach ($produtos as $prod): 
+                            foreach ($produtos as $prod):
                                 $corEstoque = 'bg-success';
-                                if($prod['quantidade'] <= 5) $corEstoque = 'bg-warning text-dark';
-                                if($prod['quantidade'] == 0) $corEstoque = 'bg-danger';
+                                if ($prod['quantidade'] <= 5) $corEstoque = 'bg-warning text-dark';
+                                if ($prod['quantidade'] == 0) $corEstoque = 'bg-danger';
 
                                 $corStatus = ($prod['status'] == 'disponivel') ? 'bg-success' : (($prod['status'] == 'esgotado') ? 'bg-danger' : 'bg-dark');
-                                
-                                $caminho_base = "img/produtos/" . ($prod['foto'] ?? 'padrao.png');
-                                
-                                if(file_exists($caminho_base) && !is_dir($caminho_base)) {
-                                    $full_img_url = $caminho_base; 
+
+                                $filename = $prod['foto'] ?? 'padrao.png';
+
+                                $caminho_visualizacao = "img/produtos/" . $filename;
+
+                                $caminho_absoluto = __DIR__ . '/img/produtos/' . $filename;
+
+                                if (file_exists($caminho_absoluto) && !is_dir($caminho_absoluto)) {
+                                    $full_img_url = $caminho_visualizacao;
                                 } else {
-                                    $full_img_url = "../Cliente/img/imagem_azul.png"; 
+                                    $full_img_url = "../Cliente/img/imagem_azul.png";
                                 }
                             ?>
-                            <tr>
-                                <td class="ps-4">
-                                    <div class="d-flex align-items-center">
-                                        <img src="<?= $full_img_url ?>" class="img-produto-mini me-3" alt="Foto">
-                                        <div>
-                                            <div class="fw-bold text-dark"><?= htmlspecialchars($prod['nome_produto']) ?></div>
-                                            <div class="small text-muted">Cód: #<?= $prod['id_produto'] ?></div>
+                                <tr>
+                                    <td class="ps-4">
+                                        <div class="d-flex align-items-center">
+                                            <img src="<?= $full_img_url ?>" class="img-produto-mini me-3" alt="Foto">
+                                            <div>
+                                                <div class="fw-bold text-dark"><?= htmlspecialchars($prod['nome_produto']) ?></div>
+                                                <div class="small text-muted">Cód: #<?= $prod['id_produto'] ?></div>
+                                            </div>
                                         </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <span class="badge bg-light text-dark border border-secondary badge-categoria">
-                                        <?= htmlspecialchars(ucfirst($prod['nome_categoria'])) ?>
-                                    </span>
-                                </td>
-                                <td class="fw-bold text-success">R$ <?= number_format($prod['preco_venda'], 2, ',', '.') ?></td>
-                                
-                                <td class="text-center">
-                                    <span class="badge <?= $corStatus ?> bg-opacity-75 rounded-1">
-                                        <?= ucfirst($prod['status']) ?>
-                                    </span>
-                                </td>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-light text-dark border border-secondary badge-categoria">
+                                            <?= htmlspecialchars(ucfirst($prod['nome_categoria'])) ?>
+                                        </span>
+                                    </td>
+                                    <td class="fw-bold text-success">R$ <?= number_format($prod['preco_venda'], 2, ',', '.') ?></td>
 
-                                <td class="text-center">
-                                    <span class="badge <?= $corEstoque ?> rounded-pill">
-                                        <?= $prod['quantidade'] ?> un
-                                    </span>
-                                </td>
+                                    <td class="text-center">
+                                        <span class="badge <?= $corStatus ?> bg-opacity-75 rounded-1">
+                                            <?= ucfirst($prod['status']) ?>
+                                        </span>
+                                    </td>
 
-                                <td class="text-end pe-4">
-                                    <button class="btn btn-sm btn-light text-primary" 
-                                            title="Editar" 
-                                            data-bs-toggle="modal" 
+                                    <td class="text-center">
+                                        <span class="badge <?= $corEstoque ?> rounded-pill">
+                                            <?= $prod['quantidade'] ?> un
+                                        </span>
+                                    </td>
+
+                                    <td class="text-end pe-4">
+                                        <button class="btn btn-sm btn-light text-primary"
+                                            title="Editar"
+                                            data-bs-toggle="modal"
                                             data-bs-target="#modalEdicao"
                                             data-id="<?= $prod['id_produto'] ?>"
                                             data-nome="<?= htmlspecialchars($prod['nome_produto']) ?>"
@@ -199,23 +225,27 @@
                                             data-quantidade="<?= $prod['quantidade'] ?>"
                                             data-status="<?= $prod['status'] ?>"
                                             data-descricao="<?= htmlspecialchars($prod['descricao']) ?>"
-                                            data-foto="<?= htmlspecialchars($prod['foto']) ?>"
+                                            data-foto="<?= htmlspecialchars($filename) ?>"
                                             data-full-url="<?= $full_img_url ?>"> <i class="fas fa-edit"></i>
-                                    </button>
-                                    
-                                    <form method="POST" action="PHP/excluir_produto.php" style="display:inline;" onsubmit="return confirm('Excluir produto?');">
-                                        <input type="hidden" name="id" value="<?= $prod['id_produto'] ?>">
-                                        <button class="btn btn-sm btn-light text-danger"><i class="fas fa-trash"></i></button>
-                                    </form>
-                                </td>
-                            </tr>
+                                        </button>
+
+                                        <form method="POST" action="../Classes/admin.php" style="display:inline;"
+                                            onsubmit="confirmarExclusao(event, '<?= addslashes($prod['nome_produto']) ?>')">
+                                            <input type="hidden" name="action" value="excluir_produto">
+                                            <input type="hidden" name="id" value="<?= $prod['id_produto'] ?>">
+                                            <button class="btn btn-sm btn-light text-danger"><i class="fas fa-trash"></i></button>
+                                        </form>
+                                    </td>
+                                </tr>
                             <?php endforeach; ?>
-                            
-                            <?php if(count($produtos) == 0): ?>
-                                <tr><td colspan="6" class="text-center py-5 text-muted">
-                                    <i class="fas fa-box-open fa-3x mb-3 text-secondary opacity-50"></i>
-                                    <p>Nenhum produto encontrado com esses filtros.</p>
-                                </td></tr>
+
+                            <?php if (count($produtos) == 0): ?>
+                                <tr>
+                                    <td colspan="6" class="text-center py-5 text-muted">
+                                        <i class="fas fa-box-open fa-3x mb-3 text-secondary opacity-50"></i>
+                                        <p>Nenhum produto encontrado com esses filtros.</p>
+                                    </td>
+                                </tr>
                             <?php endif; ?>
                         </tbody>
                     </table>
@@ -232,7 +262,8 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
                 </div>
                 <div class="modal-body">
-                    <form action="PHP/salvar_categoria.php" method="POST">
+                    <form action="../Classes/admin.php" method="POST">
+                        <input type="hidden" name="action" value="salvar_categoria">
                         <div class="mb-3">
                             <label class="form-label fw-bold">Nome da Categoria</label>
                             <input type="text" class="form-control" name="nome_categoria" required placeholder="Ex: Monitores...">
@@ -255,7 +286,8 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
                 </div>
                 <div class="modal-body">
-                    <form action="PHP/salvar_produto.php" method="POST" enctype="multipart/form-data">
+                    <form action="../Classes/admin.php" method="POST" enctype="multipart/form-data">
+                        <input type="hidden" name="action" value="salvar_produto">
                         <div class="row g-3">
                             <div class="col-md-4">
                                 <label class="form-label fw-bold">Imagem do Produto</label>
@@ -272,16 +304,17 @@
                                         <label class="form-label">Nome do Produto</label>
                                         <input type="text" class="form-control" name="nome" required>
                                     </div>
-                                    
+
                                     <div class="col-md-6">
                                         <label class="form-label">Categoria</label>
                                         <select class="form-select" name="categoria_id" required>
                                             <option value="" selected disabled>Selecione...</option>
                                             <?php
-                                            if(!isset($cats)) {
+                                            if (!isset($cats)) {
                                                 try {
                                                     $cats = $pdo->query("SELECT * FROM categorias ORDER BY nome_categoria ASC")->fetchAll(PDO::FETCH_ASSOC);
-                                                } catch (Exception $e) {}
+                                                } catch (Exception $e) {
+                                                }
                                             }
                                             foreach ($cats as $c) {
                                                 echo "<option value='{$c['id_categoria']}'>{$c['nome_categoria']}</option>";
@@ -331,8 +364,8 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="formEdicaoProduto" action="PHP/editar_produto.php" method="POST" enctype="multipart/form-data">
-                        
+                    <form id="formEdicaoProduto" action="../Classes/admin.php" method="POST" enctype="multipart/form-data">
+                        <input type="hidden" name="action" value="editar_produto">
                         <input type="hidden" name="id_produto" id="edicao-id-produto">
 
                         <div class="row g-3">
@@ -356,10 +389,11 @@
                                         <select class="form-select" name="categoria_id" id="edicao-categoria" required>
                                             <option value="" disabled>Selecione...</option>
                                             <?php
-                                            if(!isset($cats)) {
+                                            if (!isset($cats)) {
                                                 try {
                                                     $cats = $pdo->query("SELECT * FROM categorias ORDER BY nome_categoria ASC")->fetchAll(PDO::FETCH_ASSOC);
-                                                } catch (Exception $e) {}
+                                                } catch (Exception $e) {
+                                                }
                                             }
                                             foreach ($cats as $c) {
                                                 echo "<option value='{$c['id_categoria']}'>{$c['nome_categoria']}</option>";
@@ -407,10 +441,44 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <?php if (isset($_SESSION['alert'])): ?>
+        <script>
+            Swal.fire({
+                icon: '<?= $_SESSION['alert']['icon'] ?>',
+                title: '<?= $_SESSION['alert']['title'] ?>',
+                text: '<?= $_SESSION['alert']['message'] ?>',
+                confirmButtonColor: '#0d6efd',
+                confirmButtonText: 'Ok, Entendido!'
+            });
+        </script>
+    <?php unset($_SESSION['alert']);
+    endif; ?>
 
+    <script src="js/script.js"></script>
 
+    <script>
+        function confirmarExclusao(event, nomeItem) {
+            event.preventDefault();
+            const form = event.target;
 
-    <script src="js/script.js"></script> 
+            Swal.fire({
+                title: 'Tem certeza?',
+                text: `Você está prestes a excluir: "${nomeItem}". Essa ação não pode ser desfeita!`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sim, excluir!',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        }
+    </script>
 
 </body>
+
 </html>
