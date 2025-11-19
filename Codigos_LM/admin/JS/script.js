@@ -1,6 +1,3 @@
-/**
- * Classe para buscar endereço (ViaCEP)
- */
 class BuscaCEP {
     static async pesquisar(valor, campos) {
         const cep = valor.replace(/\D/g, '');
@@ -8,7 +5,6 @@ class BuscaCEP {
             if(cep.length > 0) alert("Formato de CEP inválido.");
             return;
         }
-
         this._preencher(campos, "...");
 
         try {
@@ -30,7 +26,6 @@ class BuscaCEP {
             this._preencher(campos, "");
         }
     }
-
     static _preencher(campos, val) {
         if(campos.endereco) document.getElementById(campos.endereco).value = val;
         if(campos.bairro) document.getElementById(campos.bairro).value = val;
@@ -39,124 +34,102 @@ class BuscaCEP {
     }
 }
 
-/**
- * Classe responsável pela Pesquisa em Tempo Real
- */
-class BuscaClientes {
-    constructor() {
-        this.inputBusca = document.getElementById('inputBusca');
-        this.tabelaBody = document.querySelector('table tbody');
-        this.init();
-    }
+class ProdutoUtils {
+    static setupImagePreview(fileInputId, previewAreaId, fotoAtualId = null) {
+        const fileInput = document.getElementById(fileInputId);
+        if (!fileInput) return;
 
-    init() {
-        if (!this.inputBusca) return;
+        fileInput.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            const previewArea = document.getElementById(previewAreaId);
+            const fotoAtualElement = fotoAtualId ? document.getElementById(fotoAtualId) : null;
 
-        // Evento 'input' dispara a cada letra digitada
-        this.inputBusca.addEventListener('input', (e) => {
-            this.buscar(e.target.value);
-        });
-    }
-
-    async buscar(termo) {
-        try {
-            // Chama o nosso novo arquivo PHP
-            const response = await fetch(`PHP/busca.php?termo=${encodeURIComponent(termo)}`);
-            const clientes = await response.json();
-            this.renderizarTabela(clientes);
-        } catch (error) {
-            console.error('Erro na busca:', error);
-        }
-    }
-
-    renderizarTabela(clientes) {
-        this.tabelaBody.innerHTML = ''; // Limpa a tabela
-
-        if (clientes.length === 0) {
-            this.tabelaBody.innerHTML = `
-                <tr>
-                    <td colspan="6" class="text-center py-5">
-                        <p class="text-muted">Nenhum cliente encontrado.</p>
-                    </td>
-                </tr>`;
-            return;
-        }
-
-        // Reconstrói as linhas com HTML
-        clientes.forEach(cliente => {
-            const inicial = cliente.nome.charAt(0).toUpperCase();
-            const telefone = cliente.telefone || ''; // Trata nulo
-            
-            const html = `
-                <tr>
-                    <td class="ps-4">
-                        <div class="d-flex align-items-center">
-                            <div class="avatar-initial shadow-sm bg-primary text-white">${inicial}</div>
-                            <div>
-                                <div class="fw-bold text-dark">${cliente.nome}</div>
-                                <div class="small text-muted">ID: #${cliente.id_cliente}</div>
-                            </div>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="d-flex flex-column">
-                            <span class="text-dark"><i class="far fa-envelope me-1 text-muted"></i> ${cliente.email}</span>
-                            <span class="small text-muted mt-1"><i class="fas fa-phone-alt me-1"></i> ${telefone}</span>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="d-flex flex-column">
-                            <span class="fw-medium">${cliente.cidade} - ${cliente.estado}</span>
-                            <span class="small text-muted">${cliente.bairro}</span>
-                        </div>
-                    </td>
-                    <td><span class="badge bg-light text-dark border">${cliente.cpf}</span></td>
-                    <td class="text-center"><span class="badge bg-success-subtle text-success rounded-pill">Ativo</span></td>
-                    <td class="text-end pe-4">
-                        <div class="btn-group">
-                            <button class="btn btn-sm btn-outline-secondary" title="Ver Detalhes" 
-                                data-bs-toggle="modal" data-bs-target="#modalVisualizar"
-                                data-nome="${cliente.nome}" data-email="${cliente.email}" data-cpf="${cliente.cpf}"
-                                data-endereco="${cliente.endereco}" data-numero="${cliente.numero}"
-                                data-bairro="${cliente.bairro}" data-cep="${cliente.cep}"
-                                data-cidade="${cliente.cidade}" data-estado="${cliente.estado}">
-                                <i class="fas fa-eye"></i>
-                            </button>
-
-                            <button class="btn btn-sm btn-outline-primary" title="Editar"
-                                data-bs-toggle="modal" data-bs-target="#modalEditar"
-                                data-id="${cliente.id_cliente}" data-nome="${cliente.nome}"
-                                data-email="${cliente.email}" data-telefone="${telefone}"
-                                data-cpf="${cliente.cpf}" data-cep="${cliente.cep}"
-                                data-endereco="${cliente.endereco}" data-numero="${cliente.numero}"
-                                data-bairro="${cliente.bairro}" data-cidade="${cliente.cidade}"
-                                data-estado="${cliente.estado}">
-                                <i class="fas fa-pencil-alt"></i>
-                            </button>
-
-                            <form action="PHP/excluir.php" method="POST" onsubmit="return confirm('Tem certeza?');" style="display: inline;">
-                                <input type="hidden" name="id_cliente" value="${cliente.id_cliente}">
-                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Excluir">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </form>
-                        </div>
-                    </td>
-                </tr>
-            `;
-            this.tabelaBody.insertAdjacentHTML('beforeend', html);
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    if (fotoAtualElement) fotoAtualElement.style.display = 'none';
+                    previewArea.innerHTML = `<img src="${e.target.result}" alt="Preview" class="img-fluid rounded shadow-sm">`;
+                    previewArea.style.borderColor = '#28a745';
+                }
+                reader.readAsDataURL(file);
+            } else {
+                if (fotoAtualElement) {
+                    fotoAtualElement.style.display = 'block';
+                    previewArea.innerHTML = '';
+                } else {
+                    previewArea.innerHTML = `<i class="fas fa-cloud-upload-alt fa-3x text-muted mb-2"></i><p class="small text-muted mb-0">Clique para enviar</p>`;
+                }
+                previewArea.style.borderColor = '#ced4da';
+            }
         });
     }
 }
 
-/**
- * Gerenciador Geral
- */
+class GerenciadorProdutos {
+    constructor() {
+        this._configurarModalNovoProduto();
+        this._configurarModalEdicao();
+    }
+
+    _configurarModalNovoProduto() {
+        ProdutoUtils.setupImagePreview('fileInput', 'previewArea');
+    }
+
+    _configurarModalEdicao() {
+        const modal = document.getElementById('modalEdicao');
+        if (!modal) return;
+
+        ProdutoUtils.setupImagePreview('fileInputEdicao', 'previewAreaEdicao', 'edicao-foto-atual');
+
+        modal.addEventListener('show.bs.modal', (event) => {
+            const button = event.relatedTarget;
+            
+            const mapa = {
+                'edicao-id-produto': 'data-id',
+                'edicao-nome': 'data-nome',
+                'edicao-categoria': 'data-categoria-id',
+                'edicao-custo': 'data-custo',
+                'edicao-venda': 'data-venda',
+                'edicao-quantidade': 'data-quantidade',
+                'edicao-status': 'data-status',
+                'edicao-descricao': 'data-descricao'
+            };
+
+            for (const [idInput, dataAttr] of Object.entries(mapa)) {
+                const value = button.getAttribute(dataAttr) || '';
+                const input = document.getElementById(idInput);
+                if (input) {
+                    input.value = value;
+                }
+            }
+
+            const nomeProdutoTitle = document.getElementById('edicao-nome-produto-title');
+            const fotoAtualElement = document.getElementById('edicao-foto-atual');
+            const previewAreaEdicao = document.getElementById('previewAreaEdicao');
+
+            const nome = button.getAttribute('data-nome');
+            const fotoUrlCompleta = button.getAttribute('data-full-url');
+            
+            if(nomeProdutoTitle) nomeProdutoTitle.textContent = nome;
+
+            if(fotoAtualElement) {
+                fotoAtualElement.src = fotoUrlCompleta; 
+                fotoAtualElement.style.display = 'block'; 
+            }
+
+            if(previewAreaEdicao) {
+                previewAreaEdicao.innerHTML = '';
+                previewAreaEdicao.style.borderColor = '#ced4da';
+            }
+            
+            document.getElementById('fileInputEdicao').value = null; 
+        });
+    }
+}
+
 class GerenciadorClientes {
     constructor() {
         this.initEvents();
-        // Inicia a busca também
-        new BuscaClientes();
     }
 
     initEvents() {
@@ -164,7 +137,17 @@ class GerenciadorClientes {
         this._configurarModalVisualizar();
         this._configurarBuscaCep();
     }
-
+    
+    _configurarBuscaCep() {
+        const input = document.getElementById('editCep');
+        const btn = document.getElementById('btnBuscarCep');
+        const acao = () => BuscaCEP.pesquisar(input.value, {
+            endereco: 'editEndereco', bairro: 'editBairro', cidade: 'editCidade', estado: 'editEstado', numero: 'editNumero'
+        });
+        if(input) input.addEventListener('blur', acao);
+        if(btn) btn.addEventListener('click', acao);
+    }
+    
     _configurarModalEditar() {
         const modal = document.getElementById('modalEditar');
         if (!modal) return;
@@ -198,18 +181,15 @@ class GerenciadorClientes {
             set('viewCep', `CEP: ${btn.getAttribute('data-cep')}`);
         });
     }
-
-    _configurarBuscaCep() {
-        const input = document.getElementById('editCep');
-        const btn = document.getElementById('btnBuscarCep');
-        const acao = () => BuscaCEP.pesquisar(input.value, {
-            endereco: 'editEndereco', bairro: 'editBairro', cidade: 'editCidade', estado: 'editEstado', numero: 'editNumero'
-        });
-        if(input) input.addEventListener('blur', acao);
-        if(btn) btn.addEventListener('click', acao);
-    }
+    
 }
 
+
 document.addEventListener('DOMContentLoaded', () => {
-    new GerenciadorClientes();
+    if (document.getElementById('modalEdicao')) { 
+        new GerenciadorProdutos();
+    } 
+    if (document.getElementById('modalEditar')) { 
+        new GerenciadorClientes();
+    }
 });
