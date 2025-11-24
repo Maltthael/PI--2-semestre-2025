@@ -142,11 +142,11 @@ class GerenciadorClientes {
     _configurarBuscaCep() {
         const input = document.getElementById('editCep');
         const btn = document.getElementById('btnBuscarCep');
-        const acao = () => BuscaCEP.pesquisar(input.value, {
+        const status = () => BuscaCEP.pesquisar(input.value, {
             endereco: 'editEndereco', bairro: 'editBairro', cidade: 'editCidade', estado: 'editEstado', numero: 'editNumero'
         });
-        if(input) input.addEventListener('blur', acao);
-        if(btn) btn.addEventListener('click', acao);
+        if(input) input.addEventListener('blur', status);
+        if(btn) btn.addEventListener('click', status);
     }
     
     _configurarBuscaClientes() {
@@ -329,4 +329,65 @@ document.addEventListener('DOMContentLoaded', () => {
     if (document.getElementById('modalEditar')) { 
         new GerenciadorClientes();
     }
+});
+
+function confirmarExclusao(event, nomeItem) {
+    event.preventDefault(); 
+    
+    Swal.fire({
+        title: 'Tem certeza?',
+        text: `Você está prestes a excluir: "${nomeItem}"`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sim, excluir!',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            event.target.submit();
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    
+    var modalEdicaoOS = document.getElementById('modalEdicaoOS');
+
+    if (modalEdicaoOS) {
+        modalEdicaoOS.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget;
+
+            var id = button.getAttribute('data-id');
+            var titulo = button.getAttribute('data-titulo');
+            var cliente = button.getAttribute('data-cliente');
+            var prazo = button.getAttribute('data-prazo');
+            var status = button.getAttribute('data-status');
+
+            document.getElementById('edit_id_ordem').value = id;
+            document.getElementById('edit_titulo').value = titulo;
+            document.getElementById('edit_id_cliente').value = cliente;
+            document.getElementById('edit_prazo').value = prazo;
+            document.getElementById('edit_status').value = status;
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+    const alertaDiv = document.getElementById('alerta-sistema');
+
+    if (alertaDiv) {
+        const icon = alertaDiv.getAttribute('data-icon');
+        const title = alertaDiv.getAttribute('data-title');
+        const message = alertaDiv.getAttribute('data-message');
+
+        Swal.fire({
+            icon: icon,
+            title: title,
+            text: message,
+            confirmButtonColor: '#3085d6', 
+            confirmButtonText: 'Ok'
+        }).then((result) => {
+        });
+    }
+});
 });

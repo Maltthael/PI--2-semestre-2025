@@ -112,6 +112,13 @@ $css_admin = '
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 ';
 
+if (session_status() === PHP_SESSION_NONE) session_start();
+
+$nome_completo = $_SESSION['usuario_nome'] ?? 'Administrador';
+
+$partes_nome = explode(' ', trim($nome_completo));
+$primeiro_nome = $partes_nome[0];
+
 $sidebar_content = '
 <div class="sidebar-admin">
     <div class="sidebar-header">
@@ -120,16 +127,15 @@ $sidebar_content = '
 
     <div class="admin-profile">
         <i class="fas fa-user-circle fa-2x me-3"></i>
-        <div>
-            <small class="d-block text-light">Bem-vindo</small>
-            <strong>Administrador</strong>
+        <div style="line-height: 1.2;">
+            <small class="d-block text-light" style="opacity: 0.7;">Bem-vindo,</small>
+            <strong class="text-white">' . htmlspecialchars($primeiro_nome) . '</strong>
         </div>
     </div>
 
     <nav class="nav flex-column mt-2">
         <a href="dashboard.php" class="nav-link-admin">
             <i class="fas fa-home"></i> Dashboard
-        </a>
         </a>
         <a href="produtos.php" class="nav-link-admin">
             <i class="fas fa-box-open"></i> Produtos

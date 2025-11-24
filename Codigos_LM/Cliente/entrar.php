@@ -1,5 +1,4 @@
 <?php 
-
 session_start();
 
 require_once '../Classes/conecta.php';
@@ -11,24 +10,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = $_POST['email'] ?? '';
     $senha = $_POST['senha'] ?? '';
 
-  //Conexão PDO
-
-    $conecta = conecta_bd::getInstance();
-    $pdo = $conecta->getConnection();
     $login = new Login();
 
-    // Tenta autenticar (admin ou cliente)
     $resultado = $login->autenticar($email, $senha);
 
     if ($resultado) {
-        $_SESSION['usuario_id'] = $resultado['id'];
-        $_SESSION['usuario_nome'] = $resultado['nome'];
-        $_SESSION['usuario_tipo'] = $resultado['tipo'];
-
+        
         if ($resultado['tipo'] === 'admin') {
             header('Location: ../admin/dashboard.php');
         } else {
-            header('Location: index.html');
+            header('Location: index.php'); 
         }
         exit;
     } else {
@@ -36,8 +27,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
  }
 ?>
-
-
 
 <!DOCTYPE html>
 <html lang="pt-br">

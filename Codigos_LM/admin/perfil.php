@@ -1,22 +1,23 @@
 <?php
 session_start();
 require_once '../Classes/conecta.php';
-require_once '../Classes/admin.php'; 
+require_once '../Classes/admin.php';
 include '../Classes/layout.php';
-include '../Classes/alertas.php';
-
 
 if (!isset($_SESSION['usuario_tipo']) || $_SESSION['usuario_tipo'] !== 'admin') {
     header("Location: ../Cliente/entrar.php");
     exit;
 }
 
-$adm_nome = $_SESSION['usuario_nome'] ?? 'Administrador Principal';
-$adm_email = $_SESSION['usuario_email'] ?? 'adminLM@gmail.com';
-?>
+$id_admin = $_SESSION['usuario_id'] ?? 0;
+$dados_admin = Admin::buscarDadosAdmin($id_admin);
+$adm_nome = $dados_admin['nome'] ?? '';
+$adm_email = $dados_admin['email'] ?? '';
 
+?>
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <?php echo $head; ?>
     <style>
@@ -27,6 +28,7 @@ $adm_email = $_SESSION['usuario_email'] ?? 'adminLM@gmail.com';
             position: relative;
             margin-bottom: 60px;
         }
+
         .profile-img {
             width: 120px;
             height: 120px;
@@ -38,13 +40,15 @@ $adm_email = $_SESSION['usuario_email'] ?? 'adminLM@gmail.com';
             background-color: #fff;
             object-fit: cover;
         }
+
         .card-custom {
             border: none;
             border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.05);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
         }
     </style>
 </head>
+
 <body>
 
     <?php echo $navbar_adm; ?>
@@ -52,8 +56,7 @@ $adm_email = $_SESSION['usuario_email'] ?? 'adminLM@gmail.com';
     <div class="container mt-5">
         <div class="row">
             <div class="col-lg-10 mx-auto">
-                
-                <?php echo $mensagem_edita_dados_adm; ?>
+
 
                 <div class="card card-custom mb-4">
                     <div class="profile-header">
@@ -74,7 +77,8 @@ $adm_email = $_SESSION['usuario_email'] ?? 'adminLM@gmail.com';
                         <h4><i class="fas fa-user-edit me-2 text-primary"></i>Editar Informações</h4>
                     </div>
                     <div class="card-body p-4">
-                        <form method="POST" action="">
+                        <form method="POST" action="../Classes/admin.php">
+                            <input type="hidden" name="action" value="atualizar_perfil">
                             <div class="row mb-3">
                                 <div class="col-md-6">
                                     <label for="nome" class="form-label">Nome Completo</label>
@@ -114,11 +118,28 @@ $adm_email = $_SESSION['usuario_email'] ?? 'adminLM@gmail.com';
                         </form>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <?php
+    if (isset($_SESSION['alert']) && !empty($_SESSION['alert'])) {
+        $alert = $_SESSION['alert']; 
+    ?>
+        <script>
+            Swal.fire({
+                icon: '<?php echo $alert['icon']; ?>', 
+                title: '<?php echo $alert['title']; ?>', 
+                text: '<?php echo $alert['message']; ?>', 
+                confirmButtonColor: '#0d6efd',
+                confirmButtonText: 'OK'
+            });
+        </script>
+    <?php
+        unset($_SESSION['alert']);
+    }
+    ?>
 
 </body>
 </html>

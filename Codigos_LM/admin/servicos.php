@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <?php
     session_start();
@@ -20,16 +21,10 @@
             color: #2c3e50;
             margin-right: 15px;
         }
+
         .table-hover tbody tr:hover {
             background-color: #f8f9fa;
             cursor: pointer;
-        }
-        .status-dot {
-            height: 10px;
-            width: 10px;
-            border-radius: 50%;
-            display: inline-block;
-            margin-right: 5px;
         }
     </style>
 </head>
@@ -39,28 +34,44 @@
     <?php echo $navbar_adm; ?>
 
     <?php
-    // Lógica PHP para buscar dados (Simulada/Preparada)
     try {
         $pdo = conecta_bd::getInstance()->getConnection();
-        // Query unindo Ordem de Serviço com Cliente para mostrar o nome dele
-        $sql = "SELECT os.id_ordem, os.titulo, os.prazo, os.acao, c.nome AS nome_cliente 
+
+        $busca = $_GET['busca'] ?? '';
+
+        $sql = "SELECT os.id_ordem, os.titulo, os.prazo, os.status, os.fk_cliente_id_cliente, c.nome AS nome_cliente 
                 FROM ordem_servico os 
-                LEFT JOIN cliente c ON os.fk_cliente_id_cliente = c.id_cliente
-                ORDER BY os.prazo ASC"; // Ordena pelos prazos mais urgentes
-        $stmt = $pdo->query($sql);
+                LEFT JOIN cliente c ON os.fk_cliente_id_cliente = c.id_cliente";
+
+        if (!empty($busca)) {
+            $sql .= " WHERE c.nome LIKE :busca OR os.titulo LIKE :busca";
+        }
+
+        $sql .= " ORDER BY os.prazo ASC";
+
+        $stmt = $pdo->prepare($sql);
+
+        if (!empty($busca)) {
+            $stmt->bindValue(':busca', "%$busca%");
+        }
+
+        $stmt->execute();
         $lista_os = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $stmt_clientes = $pdo->query("SELECT id_cliente, nome FROM cliente ORDER BY nome ASC");
+        $lista_clientes = $stmt_clientes->fetchAll(PDO::FETCH_ASSOC);
     } catch (Exception $e) {
         $lista_os = [];
-        // Em produção, você pode remover esse echo ou tratar melhor o erro
+        $lista_clientes = [];
     }
     ?>
 
     <div class="container-fluid p-4">
-        
+
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
                 <h2 class="mb-0 fw-bold text-dark">Ordens de Serviço</h2>
-                <p class="text-muted">Acompanhe o andamento dos reparos e manutenções.</p>
+                <p class="text-muted">Gerencie as ordens conforme seu banco de dados.</p>
             </div>
             <button class="btn btn-primary d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#modalNovaOS">
                 <i class="fas fa-plus-circle"></i> Nova Ordem de Serviço
@@ -71,52 +82,33 @@
             <div class="col-md-3">
                 <div class="card border-0 shadow-sm border-start border-4 border-warning h-100">
                     <div class="card-body">
-                        <h6 class="text-muted text-uppercase mb-1">Pendentes</h6>
-                        <h3 class="fw-bold mb-0">12</h3>
-                        <small class="text-warning"><i class="fas fa-clock me-1"></i> Aguardando aprovação</small>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card border-0 shadow-sm border-start border-4 border-primary h-100">
-                    <div class="card-body">
-                        <h6 class="text-muted text-uppercase mb-1">Em Andamento</h6>
-                        <h3 class="fw-bold mb-0">8</h3>
-                        <small class="text-primary"><i class="fas fa-tools me-1"></i> Na bancada</small>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card border-0 shadow-sm border-start border-4 border-success h-100">
-                    <div class="card-body">
-                        <h6 class="text-muted text-uppercase mb-1">Concluídos (Mês)</h6>
-                        <h3 class="fw-bold mb-0">45</h3>
-                        <small class="text-success"><i class="fas fa-check-circle me-1"></i> Pronto para retirada</small>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card border-0 shadow-sm border-start border-4 border-danger h-100">
-                    <div class="card-body">
-                        <h6 class="text-muted text-uppercase mb-1">Atrasados</h6>
-                        <h3 class="fw-bold mb-0">2</h3>
-                        <small class="text-danger"><i class="fas fa-exclamation-triangle me-1"></i> Atenção necessária</small>
+                        <h6 class="text-muted text-uppercase mb-1">Total OS</h6>
+                        <h3 class="fw-bold mb-0"><?= count($lista_os) ?></h3>
+                        <small class="text-warning"><i class="fas fa-clipboard-list me-1"></i> Registradas</small>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white py-3 d-flex flex-wrap justify-content-between align-items-center gap-3">
-                <div class="d-flex gap-2">
-                    <button class="btn btn-sm btn-dark">Todos</button>
-                    <button class="btn btn-sm btn-outline-secondary">Abertos</button>
-                    <button class="btn btn-sm btn-outline-secondary">Finalizados</button>
-                </div>
-                <div class="input-group" style="max-width: 300px;">
-                    <span class="input-group-text bg-light border-end-0"><i class="fas fa-search text-muted"></i></span>
-                    <input type="text" class="form-control bg-light border-start-0" placeholder="Buscar por OS, cliente...">
-                </div>
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <h5 class="mb-0 fw-bold">Lista de Serviços</h5>
+
+                <form method="GET" action="" class="d-flex gap-2" style="max-width: 400px;">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
+                        <input type="text" name="busca" class="form-control border-start-0"
+                            placeholder="Buscar cliente ou serviço..."
+                            value="<?= htmlspecialchars($_GET['busca'] ?? '') ?>">
+                        <button class="btn btn-primary" type="submit">Buscar</button>
+                    </div>
+
+                    <?php if (!empty($_GET['busca'])): ?>
+                        <a href="servicos.php" class="btn btn-light border" title="Limpar Filtros">
+                            <i class="fas fa-times text-danger"></i>
+                        </a>
+                    <?php endif; ?>
+                </form>
             </div>
 
             <div class="card-body p-0">
@@ -124,158 +116,125 @@
                     <table class="table table-hover align-middle mb-0">
                         <thead class="bg-light">
                             <tr>
-                                <th class="ps-4">Serviço / Descrição</th>
+                                <th class="ps-4">ID / Título do Serviço</th>
                                 <th>Cliente</th>
                                 <th>Prazo</th>
-                                <th>Prioridade</th>
                                 <th class="text-center">Status</th>
                                 <th class="text-end pe-4">Ações</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php if (count($lista_os) > 0): ?>
-                                <?php foreach ($lista_os as $os): 
-                                    // Formatação de data
+                                <?php foreach ($lista_os as $os):
                                     $data_prazo = new DateTime($os['prazo']);
                                     $hoje = new DateTime();
-                                    $dias_restantes = $hoje->diff($data_prazo)->days;
                                     $atrasado = $hoje > $data_prazo;
+                                    $texto_prazo = $data_prazo->format('d/m/Y H:i');
                                 ?>
-                                <tr>
-                                    <td class="ps-4">
-                                        <div class="d-flex align-items-center">
-                                            <div class="service-icon">
-                                                <i class="fas fa-laptop-medical"></i> </div>
-                                            <div>
-                                                <div class="fw-bold text-dark"><?= htmlspecialchars($os['titulo']) ?></div>
-                                                <div class="small text-muted">OS #<?= str_pad($os['id_ordem'], 4, '0', STR_PAD_LEFT) ?></div>
+                                    <tr>
+                                        <td class="ps-4">
+                                            <div class="d-flex align-items-center">
+                                                <div class="service-icon"><i class="fas fa-tools"></i></div>
+                                                <div>
+                                                    <div class="fw-bold text-dark"><?= htmlspecialchars($os['titulo']) ?></div>
+                                                    <div class="small text-muted">OS #<?= str_pad($os['id_ordem'], 4, '0', STR_PAD_LEFT) ?></div>
+                                                </div>
                                             </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <div class="fw-medium"><?= htmlspecialchars($os['nome_cliente'] ?? 'Cliente não identificado') ?></div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="d-flex flex-column">
+                                        </td>
+                                        <td>
+                                            <i class="fas fa-user-circle text-muted me-1"></i>
+                                            <?= htmlspecialchars($os['nome_cliente'] ?? 'N/A') ?>
+                                        </td>
+                                        <td>
                                             <span class="<?= $atrasado ? 'text-danger fw-bold' : 'text-dark' ?>">
-                                                <?= $data_prazo->format('d/m/Y') ?>
+                                                <?= $texto_prazo ?>
                                             </span>
-                                            <small class="text-muted">
-                                                <?= $atrasado ? 'Atrasado' : $dias_restantes . ' dias restantes' ?>
-                                            </small>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-warning text-dark bg-opacity-25 border border-warning">Média</span>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="badge bg-primary rounded-pill">Em Análise</span>
-                                    </td>
-                                    <td class="text-end pe-4">
-                                        <?php echo $botao_tabela_servico; ?>
-                                    </td>
-                                </tr>
+                                            <?php if ($atrasado): ?><br><small class="text-danger">Atrasado</small><?php endif; ?>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge bg-info text-dark bg-opacity-25 border border-info">
+                                                <?= strtoupper($os['status']) ?>
+                                            </span>
+                                        </td>
+                                        <td class="text-end pe-4">
+                                            <button class="btn btn-sm btn-light text-primary"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#modalEdicaoOS"
+                                                data-id="<?= $os['id_ordem'] ?>"
+                                                data-titulo="<?= htmlspecialchars($os['titulo']) ?>"
+                                                data-cliente="<?= $os['fk_cliente_id_cliente'] ?>"
+                                                data-prazo="<?= date('d-m-y\H:i', strtotime($os['prazo'])) ?>"
+                                                data-status="<?= $os['status'] ?>">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+
+                                            <form action="../Classes/admin.php" method="POST" style="display:inline;"
+                                                onsubmit="confirmarExclusao(event, 'OS #<?= $os['id_ordem'] ?>')">
+                                                <input type="hidden" name="action" value="excluir_ordem">
+                                                <input type="hidden" name="id_ordem" value="<?= $os['id_ordem'] ?>">
+                                                <button class="btn btn-sm btn-light text-danger"><i class="fas fa-trash"></i></button>
+                                            </form>
+                                        </td>
+                                    </tr>
                                 <?php endforeach; ?>
                             <?php else: ?>
                                 <tr>
-                                    <td class="ps-4">
-                                        <div class="d-flex align-items-center">
-                                            <div class="service-icon"><i class="fas fa-microchip"></i></div>
-                                            <div>
-                                                <div class="fw-bold text-dark">Troca de Processador</div>
-                                                <div class="small text-muted">OS #0045</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>Lucas Brina</td>
-                                    <td>
-                                        <span class="text-success fw-bold">20/11/2025</span><br>
-                                        <small class="text-muted">3 dias restantes</small>
-                                    </td>
-                                    <td><span class="badge bg-danger bg-opacity-10 text-danger border border-danger">Alta</span></td>
-                                    <td class="text-center"><span class="badge bg-info text-dark rounded-pill">Na Bancada</span></td>
-                                    <td class="text-end pe-4"><?php echo $botao_tabela_servico; ?></td>
+                                    <td colspan="5" class="text-center py-5 text-muted">Nenhuma ordem de serviço encontrada.</td>
                                 </tr>
                             <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
             </div>
-            <div class="card-footer bg-white py-3">
-                <nav>
-                    <ul class="pagination justify-content-end mb-0">
-                        <li class="page-item disabled"><a class="page-link" href="#">Anterior</a></li>
-                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                        <li class="page-item"><a class="page-link" href="#">Próximo</a></li>
-                    </ul>
-                </nav>
-            </div>
         </div>
     </div>
 
     <div class="modal fade" id="modalNovaOS" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header bg-light">
                     <h5 class="modal-title fw-bold"><i class="fas fa-file-medical me-2"></i>Nova Ordem de Serviço</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <form>
-                        <div class="row g-3">
-                            <div class="col-md-12">
-                                <label class="form-label">Cliente</label>
-                                <div class="input-group">
-                                    <select class="form-select">
-                                        <option selected>Selecione o cliente...</option>
-                                        <option>Lucas Brina</option>
-                                        <option>Rafael Cerqueira</option>
-                                    </select>
-                                    <button class="btn btn-outline-secondary" type="button"><i class="fas fa-plus"></i> Novo</button>
-                                </div>
-                            </div>
+                    <form action="../Classes/admin.php" method="POST">
+                        <input type="hidden" name="action" value="salvar_ordem">
 
-                            <div class="col-md-6">
-                                <label class="form-label">Equipamento</label>
-                                <input type="text" class="form-control" placeholder="Ex: Notebook Dell G15">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Número de Série</label>
-                                <input type="text" class="form-control" placeholder="Opcional">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Título / Descrição do Serviço</label>
+                                <input type="text" class="form-control" name="titulo" placeholder="Ex: Formatação PC Gamer" required>
                             </div>
 
                             <div class="col-12">
-                                <label class="form-label">Problema Relatado</label>
-                                <textarea class="form-control" rows="2" placeholder="O que o cliente disse?"></textarea>
+                                <label class="form-label fw-bold">Cliente</label>
+                                <select class="form-select" name="id_cliente" required>
+                                    <option value="" selected disabled>Selecione...</option>
+                                    <?php foreach ($lista_clientes as $cli): ?>
+                                        <option value="<?= $cli['id_cliente'] ?>"><?= htmlspecialchars($cli['nome']) ?></option>
+                                    <?php endforeach; ?>
+                                </select>
                             </div>
 
                             <div class="col-md-6">
-                                <label class="form-label">Tipo de Serviço</label>
-                                <select class="form-select">
-                                    <option>Manutenção Preventiva</option>
-                                    <option>Troca de Peça</option>
-                                    <option>Formatação</option>
-                                    <option>Diagnóstico</option>
-                                </select>
+                                <label class="form-label fw-bold">Prazo de Entrega</label>
+                                <input type="datetime-local" class="form-control" name="prazo" required>
                             </div>
-                            <div class="col-md-3">
-                                <label class="form-label">Prioridade</label>
-                                <select class="form-select">
-                                    <option class="text-success">Baixa</option>
-                                    <option class="text-warning" selected>Média</option>
-                                    <option class="text-danger">Alta</option>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Status Inicial</label>
+                                <select class="form-select" name="status" required>
+                                    <option value="aberto">Aberto</option>
+                                    <option value="em_andamento">Em Andamento</option>
+                                    <option value="concluido">Concluído</option>
+                                    <option value="cancelado">Cancelado</option>
                                 </select>
-                            </div>
-                            <div class="col-md-3">
-                                <label class="form-label">Prazo</label>
-                                <input type="date" class="form-control">
                             </div>
                         </div>
+
                         <div class="modal-footer bg-light mt-4 px-0 pb-0">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                            <button type="submit" class="btn btn-primary px-4">Abrir OS</button>
+                            <button type="submit" class="btn btn-primary px-4">Salvar OS</button>
                         </div>
                     </form>
                 </div>
@@ -283,7 +242,57 @@
         </div>
     </div>
 
-    <?php echo $footer_adm; ?>
+    <div class="modal fade" id="modalEdicaoOS" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title fw-bold"><i class="fas fa-edit me-2"></i>Editar Ordem</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="../Classes/admin.php" method="POST">
+                        <input type="hidden" name="action" value="editar_ordem">
+                        <input type="hidden" name="id_ordem" id="edit_id_ordem">
+
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label">Título</label>
+                                <input type="text" class="form-control" name="titulo" id="edit_titulo" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Cliente</label>
+                                <select class="form-select" name="id_cliente" id="edit_id_cliente" required>
+                                    <?php foreach ($lista_clientes as $cli): ?>
+                                        <option value="<?= $cli['id_cliente'] ?>"><?= htmlspecialchars($cli['nome']) ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Prazo</label>
+                                <input type="datetime-local" class="form-control" name="prazo" id="edit_prazo" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Status</label>
+                                <select class="form-select" name="status" id="edit_status" required>
+                                    <option value="aberto">Aberto</option>
+                                    <option value="em_andamento">Em Andamento</option>
+                                    <option value="concluido">Concluído</option>
+                                    <option value="cancelado">Cancelado</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="modal-footer bg-light mt-3 pb-0">
+                            <button type="submit" class="btn btn-warning">Salvar Alterações</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="js/script.js"></script>
 
 </body>
+
 </html>

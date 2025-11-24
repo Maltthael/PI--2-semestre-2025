@@ -1,5 +1,7 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 require_once 'conecta.php';
 
 class Admin {
@@ -171,7 +173,6 @@ class Admin {
             $stmt = $pdo->prepare("DELETE FROM estoque WHERE id_produto = ?");
             $stmt->execute([$id]);
 
-            // Remove imagem física se existir e não for a padrão
             if ($produto && !empty($produto['foto']) && $produto['foto'] != 'padrao.png') {
                 $caminho_foto = dirname(__DIR__) . "/admin/img/produtos/" . $produto['foto'];
                 if (file_exists($caminho_foto)) {
@@ -260,7 +261,148 @@ class Admin {
         }
     }
 
+    public static function buscarOrdens(string $termo = ''): array {
+        try {
+            $pdo = self::getPdo();
+
+            $sql = "SELECT o.*, c.nome AS nome_cliente 
+                    FROM ordem_servico os
+                    INNER JOIN cliente c ON o.fk_cliente_id_cliente = c.id_cliente";
+            
+            if (!empty($termo)) {
+                $sql .= " WHERE o.titulo LIKE :t OR c.nome LIKE :t";
+            }
+            
+            $sql .= " ORDER BY o.prazo ASC";
+
+            $stmt = $pdo->prepare($sql);
+            if (!empty($termo)) $stmt->bindValue(':t', "%$termo%");
+            $stmt->execute();
+
+            return ['success' => true, 'data' => $stmt->fetchAll(PDO::FETCH_ASSOC)];
+        } catch (Exception $e) {
+            return ['success' => false, 'message' => $e->getMessage()];
+        }
+    }
+
+    public static function salvarOrdem(array $data): array {
+        $redirect = '../admin/servicos.php'; 
+        try {
+            $pdo = self::getPdo();
+
+            if (empty($data['titulo']) || empty($data['id_cliente']) || empty($data['prazo'])) {
+                return ['success' => false, 'message' => 'Preencha todos os campos obrigatórios!', 'redirect' => $redirect];
+            }
+
+            $sql = "INSERT INTO ordem_servico (titulo, fk_cliente_id_cliente, prazo, status) 
+                    VALUES (?, ?, ?, ?)";
+            
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([
+                $data['titulo'],
+                (int)$data['id_cliente'],
+                $data['prazo'],
+                $data['status']
+            ]);
+
+            return ['success' => true, 'message' => 'Ordem de serviço criada com sucesso!', 'redirect' => $redirect];
+
+        } catch (Exception $e) {
+            return ['success' => false, 'message' => 'Erro ao criar ordem: ' . $e->getMessage(), 'redirect' => $redirect];
+        }
+    }
+
+    public static function editarOrdem(array $data): array {
+        $redirect = '../admin/servicos.php';
+        try {
+            $pdo = self::getPdo();
+            
+            $sql = "UPDATE ordem_servico SET titulo = ?, fk_cliente_id_cliente = ?, prazo = ?, status = ? 
+                    WHERE id_ordem = ?";
+            
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([
+                $data['titulo'],
+                (int)$data['id_cliente'],
+                $data['prazo'],
+                $data['status'],
+                (int)$data['id_ordem']
+            ]);
+
+            return ['success' => true, 'message' => 'Ordem de serviço atualizada!', 'redirect' => $redirect];
+
+        } catch (Exception $e) {
+            return ['success' => false, 'message' => 'Erro ao editar: ' . $e->getMessage(), 'redirect' => $redirect];
+        }
+    }
+
+    public static function excluirOrdem(int $id): array {
+        $redirect = '../admin/servicos.php';
+        try {
+            $pdo = self::getPdo();
+            
+            $stmt = $pdo->prepare("DELETE FROM ordem_servico WHERE id_ordem = ?");
+            $stmt->execute([$id]);
+
+            return ['success' => true, 'message' => 'Ordem de serviço excluída.', 'redirect' => $redirect];
+
+        } catch (Exception $e) {
+            return ['success' => false, 'message' => 'Erro ao excluir: ' . $e->getMessage(), 'redirect' => $redirect];
+        }
+    }
+
+    public static function buscarDadosAdmin(int $id): array {
+        try {
+            $pdo = self::getPdo();
+            $stmt = $pdo->prepare("SELECT nome, email FROM adm WHERE id_adm = ?");
+            $stmt->execute([$id]);
+            return $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
+        } catch (Exception $e) {
+            return [];
+        }
+    }
+
+    public static function atualizarPerfil(array $data, int $id_adm): array {
+        $redirect = '../admin/perfil.php';
+        
+        try {
+            $pdo = self::getPdo();
+            
+            $nome = trim($data['nome']);
+            $email = trim($data['email']);
+            $senha = $data['senha'] ?? '';
+            $confirmar = $data['confirmar_senha'] ?? '';
+
+            if (empty($nome) || empty($email)) {
+                return ['success' => false, 'message' => 'Nome e Email são obrigatórios.', 'redirect' => $redirect];
+            }
+
+            if (!empty($senha)) {
+                if (isset($data['confirmar_senha']) && $senha !== $confirmar) {
+                    return ['success' => false, 'message' => 'As senhas não coincidem!', 'redirect' => $redirect];
+                }
+
+                $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
+
+                $stmt = $pdo->prepare("UPDATE adm SET nome = ?, email = ?, senha = ? WHERE id_adm = ?");
+                $stmt->execute([$nome, $email, $senhaHash, $id_adm]);
+            } else {
+                $stmt = $pdo->prepare("UPDATE adm SET nome = ?, email = ? WHERE id_adm = ?");
+                $stmt->execute([$nome, $email, $id_adm]);
+            }
+
+            if (session_status() === PHP_SESSION_NONE) session_start();
+            $_SESSION['usuario_nome'] = $nome;
+
+            return ['success' => true, 'message' => 'Perfil atualizado com sucesso!', 'redirect' => $redirect];
+
+        } catch (Exception $e) {
+            return ['success' => false, 'message' => 'Erro ao atualizar: ' . $e->getMessage(), 'redirect' => $redirect];
+        }
+    }
 }
+
+
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' || (isset($_GET['action']) && $_GET['action'] == 'busca_cliente')) {
     
@@ -307,8 +449,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' || (isset($_GET['action']) && $_GET['a
             $result = Admin::excluirCliente($id);
             break;
 
+        case 'salvar_ordem':
+            $result = Admin::salvarOrdem($_POST);
+            break;
+        
+        case 'editar_ordem':
+            $result = Admin::editarOrdem($_POST);
+            break;
+
+        case 'excluir_ordem':
+            $id = (int)($_POST['id_ordem'] ?? 0);
+            $result = Admin::excluirOrdem($id);
+            break;
+
+            case 'atualizar_perfil':
+            $id_adm = $_SESSION['usuario_id'] ?? 0;
+            $result = Admin::atualizarPerfil($_POST, $id_adm);
+            break;
+
         default:
-            $result = ['success' => false, 'message' => 'Ação inválida.', 'redirect' => '../admin/produtos.php'];
+            $result = ['success' => false, 'message' => 'Ação inválida.', 'redirect' => '../admin/dashboard.php'];
             break;
     }
     
@@ -323,5 +483,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' || (isset($_GET['action']) && $_GET['a
         header("Location: " . $url);
         exit;
     }
+
+    
 }
+
+
+
 ?>
