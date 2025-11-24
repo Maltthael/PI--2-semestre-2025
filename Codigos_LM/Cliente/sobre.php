@@ -1,3 +1,8 @@
+<?php
+require_once '../Classes/conecta.php';
+include '../Classes/layout.php';
+?>
+
 <!DOCTYPE html>
 <html lang="pt-br">
 
@@ -14,57 +19,10 @@
 </head>
 
 <body>
-  <nav class="navbar navbar-custom navbar-expand-lg navbar-dark fixed-top">
-    <div class="container-fluid">
-        <div class="fundo_imagem">
-            <a class="navbar-brand home-link" href="index.html">
-                <img src="img/LMinformatica_logo_h (2).svg" alt="Logo" width="220">
-            </a>
-        </div>
-        
-        <button class="navbar-toggler ms-auto border-0 d-lg-none" type="button" 
-                data-bs-toggle="collapse" data-bs-target="#navbarContent" 
-                aria-controls="navbarContent" aria-expanded="false" 
-                aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        
-        <div class="collapse navbar-collapse" id="navbarContent">
-            <form class="d-flex my-2 my-lg-0 mx-lg-auto" style="max-width: 350px; width: 100%;">
-                <input class="form-control rounded-start border-0 comeco" type="search" placeholder="Pesquisar">
-                <button class="btn btn-light rounded-end border-0 final" type="submit">Buscar</button>
-            </form>
-            
-            <ul class="navbar-nav ms-lg-auto mb-2 mb-lg-0">
-                <li class="nav-item">
-                    <a class="nav-link" href="index.html">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="cadastro.php">Cadastrar</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link active" href="sobre.html">Sobre Nós</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="servicos.html">Serviços</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="contato.html">Contato</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link carrinho" href="carrinho.html">
-                        <img src="img/icone_carrinho.svg" alt="Carrinho">
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="entrar.php" class="btn-entrar btn btn-black ms-lg-3">
-                        Entrar
-                    </a>
-                </li>
-            </ul>
-        </div>
-    </div>
-</nav>
+    <?php
+    echo $navbar;
+    ?>
+
     <section class="about-hero">
         <div class="container">
             <div class="row align-items-center">

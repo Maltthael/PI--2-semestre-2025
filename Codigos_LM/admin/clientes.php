@@ -1,149 +1,194 @@
 <!DOCTYPE html>
-<html lang="pt">
-
+<html lang="pt-br">
 <head>
-  <?php
-  include '../Classes/layout.php';
-  include '../Classes/admin.php';
-  require_once '../Classes/conecta.php';
-  echo $head;
-  ?>
+    <?php
+    session_start();
+    include '../Classes/layout.php';
+    echo $head;
+    ?>
+    <style>
+        .avatar-initial {
+            width: 40px; height: 40px; 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-weight: bold; 
+            font-size: 1.1rem; 
+            margin-right: 15px;
+        }
+        .table-hover tbody tr:hover { background-color: #f8f9fa; }
+    </style>
 </head>
 
 <body>
-  <?php
-  echo $navbar_adm_clientes;
 
-  try {
-    $pdo = conecta_bd::getInstance()->getConnection();
+    <?php echo $navbar_adm; ?>
 
-    $sql = "SELECT id_cliente, nome, email, senha, endereco, numero, bairro, cep, cidade, estado, cpf 
-            FROM cliente
-            GROUP BY id_cliente";
-    $stmt = $pdo->query($sql);
-    $lista_clientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
-  } catch (Exception $e) {
-    echo "<div class='alert alert-danger'>Erro ao buscar clientes: " . $e->getMessage() . "</div>";
-    $lista_clientes = [];
-  }
-  ?>
+    <div class="container-fluid p-4">
+        
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="mb-0 fw-bold text-dark">Gerenciar Clientes</h2>
+                <p class="text-muted">Visualize, edite ou remova clientes cadastrados.</p>
+            </div>
+        </div>
 
-  <div style="margin-top: 15px; overflow-y: auto;">
-    <table class="table table-striped table-hover text-center">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Nome</th>
-          <th>Email</th>
-          <th>Senha</th>
-          <th>Endereço</th>
-          <th>Número</th>
-          <th>Bairro</th>
-          <th>CEP</th>
-          <th>Cidade</th>
-          <th>Estado</th>
-          <th>CPF</th>
-          <th></th>
-          <th>Ações</th>
-        </tr>
-      </thead>
-      <tbody>
-        <?php foreach ($lista_clientes as $cliente): ?>
-          <tr>
-            <td><?= htmlspecialchars($cliente['id_cliente']) ?></td>
-            <td><?= htmlspecialchars($cliente['nome']) ?></td>
-            <td><?= htmlspecialchars($cliente['email']) ?></td>
-            <td><?= htmlspecialchars($cliente['senha']) ?></td>
-            <td><?= htmlspecialchars($cliente['endereco']) ?></td>
-            <td><?= htmlspecialchars($cliente['numero']) ?></td>
-            <td><?= htmlspecialchars($cliente['bairro']) ?></td>
-            <td><?= htmlspecialchars($cliente['cep']) ?></td>
-            <td><?= htmlspecialchars($cliente['cidade']) ?></td>
-            <td><?= htmlspecialchars($cliente['estado']) ?></td>
-            <td><?= htmlspecialchars($cliente['cpf']) ?></td>
-            <td>
-              <div class="modal fade" id="modalEditar" tabindex="-1" aria-labelledby="modalEditarLabel" aria-hidden="true">
-                <div class="container modal-dialog">
-                  <div class="modal-content">
-                    <div id="ativo" class="modal-header text-black">
-                      <h5 class="ativo" id="modalEditarLabel">Editar Cliente</h5>
-                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-                    </div>
-                    <div class="modal-body">
-                      <form class="row g-3" method="POST">
-                        <div class="col-md-12">
-                          <label for="nomeCliente" class="form-label">Nome</label>
-                          <input type="text" class="form-control" id="nome" placeholder="Digite seu novo Nome">
-                        </div>
-                        <div class="col-md-12">
-                          <label for="telefoneCliente" class="form-label">Email</label>
-                          <input type="text" class="form-control" id="email" placeholder="Digite seu novo Email">
-                        </div>
-                        <div class="col-md-12">
-                          <label for="nomeCliente" class="form-label">Senha</label>
-                          <input type="text" class="form-control" id="senha" placeholder="Digite sua nova Senha">
-                        </div>
-                        <div class="col-md-12">
-                          <label for="telefoneCliente" class="form-label">Endereço</label>
-                          <input type="text" class="form-control" id="endereco" placeholder="Digite seu novo Endereço">
-                        </div>
-                        <div class="col-md-12">
-                          <label for="telefoneCliente" class="form-label">Numero da Casa</label>
-                          <input type="text" class="form-control" id="numero" placeholder="Digite seu novo Numero">
-                        </div>
-                        <div class="col-md-12">
-                          <label for="telefoneCliente" class="form-label">Bairro</label>
-                          <input type="text" class="form-control" id="bairro" placeholder="Digite seu Bairro atual">
-                        </div>
-                        <div class="col-md-12">
-                          <label for="telefoneCliente" class="form-label">Cidade</label>
-                          <input type="text" class="form-control" id="cidade" placeholder="Digite a nova Cidade">
-                        </div>
-                        <div class="col-md-12">
-                          <label for="telefoneCliente" class="form-label">Estado</label>
-                          <input type="text" class="form-control" id="estado" placeholder="Digite o Estado atual">
-                        </div>
-                        <div class="col-md-12">
-                          <label for="telefoneCliente" class="form-label">CPF</label>
-                          <input type="text" class="form-control" id="cpf" placeholder="Digite seu novo CPF">
-                        </div>
-                        <button type="submit" style="margin-top: 30px;" class="btn btn-success w-100">Salvar alterações</button>
-                      </form>
-                    </div>
-                  </div>
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body d-flex gap-3 align-items-center">
+                <div class="input-group" style="max-width: 400px;">
+                    <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
+                    <input type="text" id="inputBusca" class="form-control border-start-0" placeholder="Buscar por nome, email ou CPF...">
                 </div>
-              </div>
+            </div>
+        </div>
 
-            <td style="display: flex; gap: 8px; align-items: center;">
-              <button class="btn btn-button" data-bs-toggle="modal" data-bs-target="#modalEditar" style="display: flex; align-items: center; border: none; background: none;">
-                <i class="bi bi-pencil"></i>
-              </button>
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="ps-4">Cliente</th>
+                                <th>Contato</th>
+                                <th>Localização</th>
+                                <th>CPF</th>
+                                <th class="text-center">Status</th>
+                                <th class="text-end pe-4">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="6" class="text-center py-5">
+                                    <i class="fas fa-spinner fa-spin me-2"></i> Carregando clientes...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 
-              <form action="PHP/excluir.php" method="POST" onsubmit="return confirm('Tem certeza que deseja excluir este cliente?');" style="margin: 0;">
-                <input type="hidden" name="id_cliente" value="<?= $cliente['id_cliente'] ?>">
-                <button type="submit" style="border: none; background: none; display: flex; align-items: center;">
-                  <i class="bi bi-x"></i>
-                </button>
-              </form>
-            </td>
-          </tr> 
-        <?php endforeach; ?>
+    <div class="modal fade" id="modalVisualizar" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title"><i class="fas fa-user me-2"></i>Detalhes do Cliente</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-4">
+                        <div class="avatar-initial bg-primary text-white mx-auto mb-2" style="width: 60px; height: 60px; font-size: 1.5rem;">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <h4 id="viewNome" class="fw-bold mb-0"></h4>
+                        <p id="viewEmail" class="text-muted"></p>
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between">
+                            <strong>CPF:</strong> <span id="viewCpf"></span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <strong>Endereço:</strong> <span id="viewEndereco" class="text-end"></span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <strong>Bairro/Cidade:</strong> <span id="viewBairroCidade" class="text-end"></span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <strong>CEP:</strong> <span id="viewCep"></span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        <?php if (count($lista_clientes) == 0): ?>
-          <tr>
-            <td colspan="12">Nenhum cliente cadastrado.</td>
-          </tr>
-        <?php endif; ?>
-      </tbody>
-    </table>
-  </div>
+    <div class="modal fade" id="modalEditar" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title fw-bold"><i class="fas fa-user-edit me-2"></i>Editar Cliente</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="../Classes/admin.php" method="POST">
+                        <input type="hidden" name="action" value="editar_cliente">
+                        <input type="hidden" name="id_cliente" id="editId">
 
-  <?php
-  echo $footer_adm;
-  ?>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Nome Completo</label>
+                                <input type="text" class="form-control" name="nome" id="editNome" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">E-mail</label>
+                                <input type="email" class="form-control" name="email" id="editEmail" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">CPF</label>
+                                <input type="text" class="form-control" name="cpf" id="editCpf" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Telefone</label>
+                                <input type="text" class="form-control" name="telefone" id="editTelefone">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">CEP</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" name="cep" id="editCep">
+                                    <button class="btn btn-outline-secondary" type="button" id="btnBuscarCep"><i class="fas fa-search"></i></button>
+                                </div>
+                            </div>
 
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <script src="https://kit.fontawesome.com/a2e0e9e6c2.js" crossorigin="anonymous"></script>
+                            <div class="col-md-6">
+                                <label class="form-label">Endereço</label>
+                                <input type="text" class="form-control" name="endereco" id="editEndereco">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Número</label>
+                                <input type="text" class="form-control" name="numero" id="editNumero">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Bairro</label>
+                                <input type="text" class="form-control" name="bairro" id="editBairro">
+                            </div>
+                            <div class="col-md-8">
+                                <label class="form-label">Cidade</label>
+                                <input type="text" class="form-control" name="cidade" id="editCidade">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Estado</label>
+                                <input type="text" class="form-control" name="estado" id="editEstado">
+                            </div>
+                        </div>
+                        
+                        <div class="modal-footer bg-light mt-4 px-0 pb-0">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary px-4">Salvar Alterações</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <?php if (isset($_SESSION['alert'])): ?>
+    <script>
+        Swal.fire({
+            icon: '<?= $_SESSION['alert']['icon'] ?>',
+            title: '<?= $_SESSION['alert']['title'] ?>',
+            text: '<?= $_SESSION['alert']['message'] ?>',
+            confirmButtonColor: '#0d6efd',
+            confirmButtonText: 'Ok'
+        });
+    </script>
+    <?php unset($_SESSION['alert']); endif; ?>
+    
+    <script src="js/script.js"></script>
 </body>
-
 </html>
