@@ -2,30 +2,27 @@
 session_start();
 
 require_once '../Classes/conecta.php';
-require_once '../Classes/login.php';
+require_once '../Classes/Login.php'; 
+include '../Classes/layout.php';
 
-$erro = '';
+$erro = ''; 
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = $_POST['email'] ?? '';
-    $senha = $_POST['senha'] ?? '';
+    $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
+    $senha = $_POST['senha'];
 
     $login = new Login();
 
-    $resultado = $login->autenticar($email, $senha);
-
-    if ($resultado) {
-        
-        if ($resultado['tipo'] === 'admin') {
-            header('Location: ../admin/dashboard.php');
+    if ($login->autenticar($email, $senha)) {
+        if (isset($_SESSION['usuario_tipo']) && $_SESSION['usuario_tipo'] === 'admin') {
+            header("Location: ../admin/dashboard.php");
         } else {
-            header('Location: index.php'); 
+            header("Location: index.php");
         }
-        exit;
     } else {
-        $erro = 'Email ou senha incorretos!';
+        $erro = "Email ou senha incorretos!";
     }
- }
+}
 ?>
 
 <!DOCTYPE html>
@@ -34,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LM Informática</title>
+    <title>LM Informática - Login</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
     <link rel="stylesheet" href="css/style.css">
@@ -42,72 +39,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 
 <body>
-    <nav class="navbar navbar-custom navbar-expand-lg navbar-dark fixed-top">
-        <div class="container-fluid ">
-            <div class="fundo_imagem">
-                <a class="navbar-brand home-link " href="index.html">
-                    <img src="img/LMinformatica_logo_h (2).svg" alt="Logo" width="200">
-                </a>
-            </div>
-            <div class="collapse navbar-collapse justify-content-end" id="navbarMenu">
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="index.php">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" style="color: white;" href="sobre.html">Sobre Nós</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" style="color: white;" href="servicos.html">Serviços</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" style="color: white;" href="contato.html">Contato</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-    </div>
+    <?php echo $navbar; ?>
+
     <?php if (!empty($erro)) { ?>
-    <div id="msgErro" class="alert alert-danger text-center" style="margin-top:20px;">
+    <div id="msgErro" class="alert alert-danger text-center" style="position: fixed; top: 80px; left: 50%; transform: translateX(-50%); z-index: 1000; width: 80%; max-width: 500px;">
         <?= htmlspecialchars($erro) ?>
     </div>
 
     <script>
         const msg = document.getElementById("msgErro");
-        msg.style.opacity = "0";
-        msg.style.transition = "opacity 0.5s ease";
-
+        
         setTimeout(() => {
-            msg.style.opacity = "1"; 
-        }, 100);
-
-        setTimeout(() => {
+            msg.style.transition = "opacity 0.5s ease";
             msg.style.opacity = "0";
             setTimeout(() => msg.remove(), 500); 
         }, 3000);
     </script>
-<?php } ?>
+    <?php } ?>
 
 
-    <form  method="POST" action="">
-    <div class="centraliza">
-        <div class="fundo">
-            <h2 style="text-align: center; margin-bottom: 30px; color: #333; ;">Login</h2>
-            <div class="form-group">
-                <input type="email"  name="email" class="form-control" style="border-radius: 5px;" placeholder="Email" required>
-            </div>
-            <div class="form-group">
-                <input type="password"  name="senha" class="form-control" style="border-radius: 5px;"  placeholder="Senha" required>
-            </div>
-            <button type="submit" class="btn-login">Entrar</button>
-            <div style="margin-top: 20px; text-align: center;">
-                <a href="cadastro.php">
-                    <button type="button" class="btn-cadastrar">Cadastrar-se</button>
-                </a>
+    <form method="POST" action="">
+        <div class="centraliza">
+            <div class="fundo">
+                <h2 style="text-align: center; margin-bottom: 30px; color: #333;">Login</h2>
+                
+                <div class="form-group">
+                    <input type="email" name="email" class="form-control" style="border-radius: 5px;" placeholder="Email" required>
+                </div>
+                
+                <div class="form-group">
+                    <input type="password" name="senha" class="form-control" style="border-radius: 5px;" placeholder="Senha" required>
+                </div>
+                
+                <button type="submit" class="btn-login">Entrar</button>
+                
+                <div style="margin-top: 20px; text-align: center;">
+                    <a href="cadastro.php">
+                        <button type="button" class="btn-cadastrar">Cadastrar-se</button>
+                    </a>
+                </div>
             </div>
         </div>
-    </div>
     </form>
        
     
@@ -149,6 +121,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </footer>
 </body>
-
 
 </html>

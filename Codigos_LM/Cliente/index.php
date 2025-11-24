@@ -1,3 +1,20 @@
+<?php
+session_start();
+require_once '../Classes/conecta.php';
+include '../Classes/layout.php';
+
+try {
+    $pdo = conecta_bd::getInstance()->getConnection();
+    
+    $sql = "SELECT * FROM estoque WHERE status = 'disponivel' ORDER BY id_produto DESC LIMIT 8";
+    $stmt = $pdo->query($sql);
+    $produtos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+} catch (Exception $e) {
+    $produtos = []; 
+}
+?>
+
 <!DOCTYPE html>
 <html lang="pt-br">
 
@@ -13,180 +30,136 @@
 </head>
 
 <body>
-<nav class="navbar navbar-custom navbar-expand-lg navbar-dark fixed-top">
-    <div class="container-fluid">
-        <div class="fundo_imagem">
-            <a class="navbar-brand home-link" href="index.html">
-                <img src="img/LMinformatica_logo_h (2).svg" alt="Logo" width="220">
-            </a>
-        </div>
-        
-        <button class="navbar-toggler ms-auto border-0 d-lg-none" type="button" 
-                data-bs-toggle="collapse" data-bs-target="#navbarContent" 
-                aria-controls="navbarContent" aria-expanded="false" 
-                aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        
-        <div class="collapse navbar-collapse" id="navbarContent">
-            <form class="d-flex my-2 my-lg-0 mx-lg-auto" style="max-width: 350px; width: 100%;">
-                <input class="form-control rounded-start border-0 comeco" type="search" placeholder="Pesquisar">
-                <button class="btn btn-light rounded-end border-0 final" type="submit">Buscar</button>
-            </form>
-            
-            <ul class="navbar-nav ms-lg-auto mb-2 mb-lg-0"> 
-                <li class="nav-item">
-                    <a class="nav-link active" href="index.php">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link active" href="cadastro.php">Cadastrar</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link active" href="sobre.html">Sobre Nós</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link active" href="servicos.html">Serviços</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link active" href="contato.html">Contato</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link active" href="carrinho.html">
-                        <img src="img/icone_carrinho.svg" alt="Carrinho">
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="entrar.php" class="btn-entrar btn btn-black ms-lg-3">
-                        Entrar
-                    </a>
-                </li>
-            </ul>
-        </div>
-    </div>
-</nav>
+
+<?php
+ echo $navbar;
+?>
+
     <div id="destaquesCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel">
         <div class="carousel-indicators">
             <button type="button" data-bs-target="#destaquesCarousel" data-bs-slide-to="0" class="active"></button>
             <button type="button" data-bs-target="#destaquesCarousel" data-bs-slide-to="1"></button>
             <button type="button" data-bs-target="#destaquesCarousel" data-bs-slide-to="2"></button>
         </div>
+        
         <div class="carousel-inner">
+            
             <div class="carousel-item active">
-                <div class="carousel-img-container centraliza-2">
-                    <img src="img/imagem_azul.png" alt="Promoção de Notebooks">
+                <div class="carousel-img-container centraliza-2" style="height: 500px; overflow: hidden;">
+                    <img src="img/notebook.png" 
+                         alt="Promoção de Notebooks" 
+                         style="width: 100%; height: 100%; object-fit: cover; filter: brightness(0.6);">
                 </div>
                 <div class="carousel-caption d-none d-md-block">
-                    <h5>Notebooks com até 30% OFF</h5>
-                    <p>Linha completa com os melhores preços do mercado</p>
-                    <a href="#notebooks" class="btn btn-primary">Ver Ofertas</a>
+                    <h2 class="fw-bold">Notebooks de Alta Performance</h2>
+                    <p class="fs-5">Trabalhe ou jogue com a máxima velocidade. Confira nossa linha Dell e Lenovo.</p>
+                    <a href="#produtos" class="btn btn-primary btn-lg mt-2">Ver Ofertas</a>
                 </div>
             </div>
+
             <div class="carousel-item">
-                <div class="carousel-img-container centraliza-2">
-                    <img src="img/imagem_azul.png" alt="Acessórios em Promoção">
+                <div class="carousel-img-container centraliza-2" style="height: 500px; overflow: hidden;">
+                    <img src="img/acessorios-para-games.png" 
+                         alt="Acessórios em Promoção"
+                         style="width: 100%; height: 100%; object-fit: cover; filter: brightness(0.6);">
                 </div>
                 <div class="carousel-caption d-none d-md-block">
-                    <h5>Acessórios com 50% OFF</h5>
-                    <p>Mouse, teclados, headsets e muito mais</p>
-                    <a href="#acessorios" class="btn btn-primary">Comprar Agora</a>
+                    <h2 class="fw-bold">Acessórios Gamer</h2>
+                    <p class="fs-5">Mouses, teclados mecânicos e headsets para elevar o seu nível.</p>
+                    <a href="#produtos" class="btn btn-info text-white btn-lg mt-2">Upgrade no Setup</a>
                 </div>
             </div>
+
             <div class="carousel-item">
-                <div class="carousel-img-container centraliza-2">
-                    <img src="img/imagem_azul.png" alt="Manutenção Especial">
+                <div class="carousel-img-container centraliza-2" style="height: 500px; overflow: hidden;">
+                    <img src="img/pc.png" 
+                         alt="Manutenção Especial"
+                         style="width: 100%; height: 100%; object-fit: cover; filter: brightness(0.5);">
                 </div>
                 <div class="carousel-caption d-none d-md-block">
-                    <h5>Manutenção com Desconto</h5>
-                    <p>Leve seu equipamento e ganhe 20% de desconto</p>
-                    <a href="servicos.html" class="btn btn-primary">Saiba Mais</a>
+                    <h2 class="fw-bold">Seu PC está lento?</h2>
+                    <p class="fs-5">Traz para a LM Informática! Diagnóstico rápido e serviço especializado.</p>
+                    <a href="servicos.php" class="btn btn-success btn-lg mt-2">Agendar Visita</a>
                 </div>
             </div>
+
         </div>
-        <button class="carousel-control-prev fundo-seta" type="button" data-bs-target="#destaquesCarousel"
-            data-bs-slide="prev">
+        
+        <button class="carousel-control-prev" type="button" data-bs-target="#destaquesCarousel" data-bs-slide="prev">
             <span class="carousel-control-prev-icon" aria-hidden="true"></span>
             <span class="visually-hidden">Anterior</span>
         </button>
-        <button class="carousel-control-next fundo-seta" type="button" data-bs-target="#destaquesCarousel"
-            data-bs-slide="next">
+        <button class="carousel-control-next" type="button" data-bs-target="#destaquesCarousel" data-bs-slide="next">
             <span class="carousel-control-next-icon" aria-hidden="true"></span>
             <span class="visually-hidden">Próximo</span>
         </button>
     </div>
+
     <section class="produtos-section py-5" id="produtos">
         <div class="container">
             <h2 class="text-center mb-5 section-title">Nossos Produtos</h2>
             <div class="row g-4">
-                <div class="col-md-6 col-lg-3">
-                    <div class="card produto-card">
-                        <div class="badge-oferta">-20%</div>
-                        <img src="img/imagem_azul.png" class="card-img-top" alt="Notebook Dell Inspiron">
-                        <div class="card-body">
-                            <h5 class="card-title">Notebook Dell Inspiron</h5>
-                            <p class="card-text">i5 10ª geração, 8GB RAM, SSD 256GB, 15.6" Full HD</p>
-                            <div class="preco">
-                                <span class="preco-antigo">R$ 3.999,00</span>
-                                <span class="preco-atual">R$ 3.199,00</span>
-                                <span class="parcelamento">ou 12x de R$ 299,90</span>
+                
+                <?php if (count($produtos) > 0): ?>
+                    <?php foreach ($produtos as $prod): 
+                        
+                        $caminho_imagem = "../admin/img/produtos/" . $prod['foto'];
+                        if (empty($prod['foto']) || !file_exists($caminho_imagem)) {
+                            $caminho_imagem = "img/imagem_azul.png"; 
+                        }
+
+                        $preco = number_format($prod['preco_venda'], 2, ',', '.');
+                        
+                        $parcela = number_format($prod['preco_venda'] / 12, 2, ',', '.');
+                    ?>
+
+                    <div class="col-md-6 col-lg-3">
+                        <div class="card produto-card h-100"> <?php if($prod['preco_venda'] > 2000): ?>
+                                <div class="badge-oferta">Oferta</div>
+                            <?php endif; ?>
+
+                            <div style="height: 200px; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                                <img src="<?php echo htmlspecialchars($caminho_imagem); ?>" 
+                                     class="card-img-top" 
+                                     alt="<?php echo htmlspecialchars($prod['nome_produto']); ?>"
+                                     style="max-height: 100%; width: auto;">
                             </div>
-                            <a href="#" class="btn btn-primary w-100 mt-3">Comprar</a>
+
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title"><?php echo htmlspecialchars($prod['nome_produto']); ?></h5>
+                                
+                                <p class="card-text text-muted" style="font-size: 0.9rem;">
+                                    <?php echo htmlspecialchars(substr($prod['descricao'], 0, 50)) . '...'; ?>
+                                </p>
+                                
+                                <div class="preco mt-auto">
+                                    <span class="preco-atual">R$ <?php echo $preco; ?></span>
+                                    <span class="parcelamento d-block">ou 12x de R$ <?php echo $parcela; ?></span>
+                                </div>
+                                
+                                <a href="#" class="btn btn-primary w-100 mt-3">Comprar</a>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="col-md-6 col-lg-3">
-                    <div class="card produto-card">
-                        <img src="img/imagem_azul.png" class="card-img-top" alt="Mouse Gamer">
-                        <div class="card-body">
-                            <h5 class="card-title">Mouse Gamer Redragon</h5>
-                            <p class="card-text">RGB, 12400DPI, 7 botões programáveis</p>
-                            <div class="preco">
-                                <span class="preco-atual">R$ 199,90</span>
-                                <span class="parcelamento">ou 3x de R$ 66,63</span>
-                            </div>
-                            <a href="#" class="btn btn-primary w-100 mt-3">Comprar</a>
-                        </div>
+
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <div class="col-12 text-center">
+                        <p class="text-muted">Nenhum produto disponível no momento.</p>
                     </div>
-                </div>
-                <div class="col-md-6 col-lg-3">
-                    <div class="card produto-card">
-                        <div class="badge-oferta">-15%</div>
-                        <img src="img/imagem_azul.png" class="card-img-top" alt="SSD Kingston">
-                        <div class="card-body">
-                            <h5 class="card-title">SSD Kingston 480GB</h5>
-                            <p class="card-text">SATA III, Leitura 500MB/s, Gravação 450MB/s</p>
-                            <div class="preco">
-                                <span class="preco-antigo">R$ 299,90</span>
-                                <span class="preco-atual">R$ 254,90</span>
-                                <span class="parcelamento">ou 4x de R$ 63,73</span>
-                            </div>
-                            <a href="#" class="btn btn-primary w-100 mt-3">Comprar</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6 col-lg-3">
-                    <div class="card produto-card">
-                        <img src="img/imagem_azul.png" class="card-img-top" alt="Teclado Mecânico">
-                        <div class="card-body">
-                            <h5 class="card-title">Teclado Mecânico Logitech</h5>
-                            <p class="card-text">Switches GX Blue, RGB, ABNT2</p>
-                            <div class="preco">
-                                <span class="preco-atual">R$ 449,90</span>
-                                <span class="parcelamento">ou 6x de R$ 74,98</span>
-                            </div>
-                            <a href="#" class="btn btn-primary w-100 mt-3">Comprar</a>
-                        </div>
-                    </div>
-                </div>
+                <?php endif; ?>
+
             </div>
+            
             <div class="text-center mt-5">
-                <a href="#" class="btn btn-outline-primary btn-lg">Ver Todos os Produtos</a>
+                <a href="pagina_produtos.php" class="btn btn-outline-primary btn-lg">Ver Todos os Produtos</a>
             </div>
         </div>
     </section>
+
     <section class="destaques-section py-5 bg-light">
         <div class="container">
             <h2 class="text-center mb-5 section-title">Destaques</h2>
-
             <div class="row">
                 <div class="col-md-4 mb-4">
                     <div class="destaque-card text-center p-4">
@@ -195,7 +168,6 @@
                         <p>Para compras acima de R$ 300 em todo o Brasil</p>
                     </div>
                 </div>
-
                 <div class="col-md-4 mb-4">
                     <div class="destaque-card text-center p-4">
                         <i class="fas fa-lock destaque-icon"></i>
@@ -213,6 +185,7 @@
             </div>
         </div>
     </section>
+
     <footer class="text-center py-4 footer" style="color: white;">
         <div class="container">
             <div class="row">
@@ -226,16 +199,9 @@
                 <div class="col-md-4 mb-3 mb-md-0">
                     <h5>Links Rápidos</h5>
                     <ul class="list-unstyled">
-                        <li class="nav-item">
-                            <a class="nav-link active" href="sobre.html">Sobre Nós</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="servicos.html">Serviços</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="contato.html">Contato</a>
-                        </li>
-                        <li>
+                        <li class="nav-item"><a class="nav-link" href="sobre.html">Sobre Nós</a></li>
+                        <li class="nav-item"><a class="nav-link" href="servicos.html">Serviços</a></li>
+                        <li class="nav-item"><a class="nav-link" href="contato.html">Contato</a></li>
                     </ul>
                 </div>
                 <div class="col-md-4">
@@ -250,6 +216,7 @@
             <p class="mb-0">&copy; 2025 LM Informática. Todos os direitos reservados.</p>
         </div>
     </footer>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         window.addEventListener('scroll', function () {
@@ -262,5 +229,4 @@
         });
     </script>
 </body>
-
 </html>

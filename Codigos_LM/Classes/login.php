@@ -1,4 +1,6 @@
 <?php
+require_once 'conecta.php'; 
+
 class Login {
     private $pdo;
 
@@ -6,54 +8,61 @@ class Login {
         $this->pdo = conecta_bd::getInstance()->getConnection(); 
     }
 
-    public function verificar_logado(){
-        return isset($_SESSION["logged_in"]) && $_SESSION["logged_in"] === true;
-    }
-
     public function autenticar($email, $senha) {
         
-        $stmt = $this->pdo->prepare("SELECT id_adm, nome, email FROM adm WHERE email = ? AND senha = ?");
-        $stmt->execute([$email, $senha]);
+        $stmt = $this->pdo->prepare("SELECT * FROM adm WHERE email = ?");
+        $stmt->execute([$email]);
         $admin = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($admin) {
-            $_SESSION["logged_in"] = true;
-            $_SESSION["usuario_id"] = $admin['id_adm']; 
-            $_SESSION["usuario_nome"] = $admin['nome'];
-            $_SESSION["usuario_email"] = $admin['email'];
-            $_SESSION["usuario_tipo"] = "admin";
-
-            return [
-                'id' => $admin['id_adm'],
-                'nome' => $admin['nome'],
-                'tipo' => 'admin',
-            ];
+            if (password_verify($senha, $admin['senha'])) {
+                $this->criarSessao($admin['id_adm'], $admin['nome'], $admin['email'], 'admin');
+                return true;
+            }
+            elseif ($senha === $admin['senha']) {
+                $this->criarSessao($admin['id_adm'], $admin['nome'], $admin['email'], 'admin');
+                return true;
+            }
         }
 
-        $stmt = $this->pdo->prepare("SELECT id_cliente, nome, email FROM cliente WHERE email = ? AND senha = ?");
-        $stmt->execute([$email, $senha]);
+        $stmt = $this->pdo->prepare("SELECT * FROM cliente WHERE email = ?");
+        $stmt->execute([$email]);
         $cliente = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if ($cliente) { 
-            $_SESSION["logged_in"] = true;
-            $_SESSION["usuario_id"] = $cliente['id_cliente'];
-            $_SESSION["usuario_nome"] = $cliente['nome'];
-            $_SESSION["usuario_email"] = $cliente['email'];
-            $_SESSION["usuario_tipo"] = 'cliente'; 
-
-            return [
-                'id' => $cliente['id_cliente'],
-                'nome' => $cliente['nome'],
-                'tipo' => 'cliente'
-            ];
+        if ($cliente) {
+            if (password_verify($senha, $cliente['senha'])) {
+                $this->criarSessao($cliente['id_cliente'], $cliente['nome'], $cliente['email'], 'cliente');
+                return true;
+            }
+            elseif ($senha === $cliente['senha']) {
+                $this->criarSessao($cliente['id_cliente'], $cliente['nome'], $cliente['email'], 'cliente');
+                return true;
+            }
         }
 
         return false; 
     }
 
+    private function criarSessao($id, $nome, $email, $tipo) {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        $_SESSION["logged_in"] = true;
+        $_SESSION["usuario_id"] = $id;
+        $_SESSION["usuario_nome"] = $nome;
+        $_SESSION["usuario_email"] = $email;
+        $_SESSION["usuario_tipo"] = $tipo;
+        
+        if ($tipo === 'cliente') {
+            $_SESSION['cliente_nome'] = $nome;
+            $_SESSION['cliente_id'] = $id;
+        }
+    }
+
     public function logout() {
+        if (session_status() === PHP_SESSION_NONE) session_start();
         session_destroy();
-        header("Location:../Cliente/entrar.php");
+        header("Location: ../Cliente/index.php"); 
         exit();
     } 
 }

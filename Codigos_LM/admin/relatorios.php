@@ -10,16 +10,41 @@
 <body>
 
 <?php
-  echo $navbar_adm_relatorio;
+include '../Classes/conecta.php';
 
+echo $navbar_adm_relatorio;
 
+$pdo = conecta_bd::getInstance()->getConnection();
 
-  $nomes = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho'];
-  $valores = [100, 200, 150, 90, 80, 900];
-  $valores1 = [190, 220, 180, 100, 100, 650];
+$nomes = [];
+$valores2024 = [];
+$valores2025 = [];
+
+$meses = [
+    1 => 'Janeiro', 2 => 'Fevereiro', 3 => 'Março',
+    4 => 'Abril', 5 => 'Maio', 6 => 'Junho',
+    7 => 'Julho', 8 => 'Agosto', 9 => 'Setembro',
+    10 => 'Outubro', 11 => 'Novembro', 12 => 'Dezembro'
+];
+
+$stmt = $pdo->prepare("CALL sp_vendas_por_mes(:ano)");
+$stmt->execute(['ano' => 2024]);
+
+while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    $nomes[]       = $meses[$row['mes']];
+    $valores2024[] = (float)$row['total'];
+}
+$stmt->closeCursor();
+
+$stmt = $pdo->prepare("CALL sp_vendas_por_mes(:ano)");
+$stmt->execute(['ano' => 2025]);
+
+while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    $valores2025[] = (float)$row['total'];
+}
+$stmt->closeCursor();
 ?>
 
-<!-- ===== GRÁFICO 1 ===== -->
 <div class="container mt-5 pt-4">
   <h2 class="text-center mb-2">
     <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-database" viewBox="0 0 16 16">
@@ -34,9 +59,9 @@
 </div>
 
 <script>
-  const labels = <?= json_encode($nomes) ?>;
-  const valores = <?= json_encode($valores) ?>;
-  const valores1 = <?= json_encode($valores1)?>;
+  const labels   = <?= json_encode($nomes) ?>;
+  const valores2024 = <?= json_encode($valores2024) ?>;
+  const valores2025 = <?= json_encode($valores2025) ?>;
 
   new Chart(document.getElementById('meuGrafico'), {
     type: 'bar',
@@ -45,12 +70,12 @@
       datasets: [
         {
           label: 'Vendas 2024',
-          data: valores,
+          data: valores2024,
           backgroundColor: '#a200b7'
         },
         {
           label: 'Vendas 2025',
-          data: valores1,
+          data: valores2025,
           backgroundColor: '#00b7a2'
         }
       ]
@@ -64,12 +89,34 @@
   });
 </script>
 
-<!--  GRÁFICO 2  -->
+
 <?php
-  $mes = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho'];
-  $troca = [100, 200, 150, 90, 80, 99];
-  $venda = [190, 220, 180, 100, 100, 80];
+$pdo = conecta_bd::getInstance()->getConnection();
+
+$sql = "CALL sp_comparativo_custo_venda()";
+$stmt = $pdo->query($sql);
+
+$mes = [];
+$troca = [];
+$venda = [];
+
+$meses = [
+    1 => 'Janeiro', 2 => 'Fevereiro', 3 => 'Março',
+    4 => 'Abril', 5 => 'Maio', 6 => 'Junho',
+    7 => 'Julho', 8 => 'Agosto', 9 => 'Setembro',
+    10 => 'Outubro', 11 => 'Novembro', 12 => 'Dezembro'
+];
+
+while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    $mes[]   = $meses[$row['mes']];
+    $troca[] = (float)$row['custo_total'];
+    $venda[] = (float)$row['venda_total'];
+}
+
+$stmt->closeCursor();
 ?>
+
+
 
 <div class="container mt-5 pt-4">
   <h2 class="text-center mb-2">
@@ -117,9 +164,131 @@
 
 <?php
 
-  $situacoes = ['Encerrados', 'Abertos', 'Pendente'];
-  $quantidades = [45, 30, 25]; // Quantidade de cada tipo
+$conexao = conecta_bd::getInstance();
+$conn    = $conexao->getConnection();
+
+$sql = "CALL sp_vendas_por_mes(:ano)";
+$stmt = $conn->prepare($sql);
+$stmt->execute();
+
+$situacoes   = [];
+$quantidades = [];
+
+$mapStatus = [
+    'encerrados' => 'Encerrados',
+    'aberto'     => 'Abertos',
+    'pendente'   => 'Pendente'
+];
+
+while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    $status = strtolower($row['status']);
+    if (isset($mapStatus[$status])) {
+        $situacoes[]   = $mapStatus[$status];
+        $quantidades[] = (int)$row['qtd'];
+    }
+}
+
+$conn = null;
 ?>
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Gráfico de Status</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <canvas id="grafico_pizza" width="400" height="400"></canvas>
+
+  <script>
+    const situacoes = <?= json_encode($situacoes, JSON_UNESCAPED_UNICODE) ?>;
+    const quantidades = <?= json_encode($quantidades) ?>;
+
+    new Chart(document.getElementById('grafico_pizza'), {
+      type: 'pie',
+      data: {
+        labels: situacoes,
+        datasets: [{
+          label: 'Chamados',
+          data: quantidades,
+          backgroundColor: [
+            '#00b7a2', 
+            '#a200b7', 
+            '#ffc107'  
+          ],
+          borderColor: '#fff',
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              color: '#000',
+              font: { size: 14 }
+            }
+          },
+          title: { display: false }
+        }
+      }
+    });
+  </script>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Gráfico de Status</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <canvas id="grafico_pizza" width="400" height="400"></canvas>
+
+  <script>
+    const situacoes = <?= json_encode($situacoes, JSON_UNESCAPED_UNICODE) ?>;
+    const quantidades = <?= json_encode($quantidades) ?>;
+
+    new Chart(document.getElementById('grafico_pizza'), {
+      type: 'pie',
+      data: {
+        labels: situacoes,
+        datasets: [{
+          label: 'Chamados',
+          data: quantidades,
+          backgroundColor: [
+            '#00b7a2',
+            '#a200b7', 
+            '#ffc107' 
+          ],
+          borderColor: '#fff',
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              color: '#000',
+              font: { size: 14 }
+            }
+          },
+          title: { display: false }
+        }
+      }
+    });
+  </script>
+</body>
+</html>
+
 
 <<div class="container mt-5 pt-5">
   <h2 class="text-center mb-4">
@@ -130,17 +299,14 @@
   </h2>
 
   <div class="card shadow-sm p-4 mb-4 grafico_pizza" >
-    <!-- Canvas sem width/height inline -->
     <canvas id="grafico_pizza" style="max-width: 500px; max-height: 500px;"></canvas>
   </div>
 </div>
 
 <script>
-  // Recebe arrays do PHP
   const situacoes = <?= json_encode($situacoes) ?>;
   const quantidades = <?= json_encode($quantidades) ?>;
 
-  // Criação do gráfico de pizza
   new Chart(document.getElementById('grafico_pizza'), {
     type: 'pie',
     data: {
@@ -150,9 +316,9 @@
         data: quantidades,
         backgroundColor: [
       
-          '#00b7a2', // Encerrados
-          '#a200b7', // Abertos
-          '#ffc107'  // Pendente Cliente
+          '#00b7a2', 
+          '#a200b7', 
+          '#ffc107'  
         ],
         borderColor: '#fff',
         borderWidth: 2

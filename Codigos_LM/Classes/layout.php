@@ -1,33 +1,73 @@
 <?php
-$navbar = '<nav class="navbar navbar-expand-lg navbar-custom fixed-top">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="index.html">
-      <img src="../Cliente/img/LMinformatica_logo_h (2).svg" alt="Logo" width="200" class="img-fluid">
-    </a>
-    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarContent">
-      <form class="d-flex mx-auto my-2 my-lg-0" style="max-width: 350px; width: 100%;">
-        <input class="form-control rounded-start border-0" type="search" placeholder="Pesquisar">
-        <button class="btn btn-light rounded-end border-0" type="submit">Buscar</button>
-      </form>
-      <ul class="navbar-nav ms-lg-auto align-items-lg-center mb-2 mb-lg-0 navbar">
-        <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
-        <li class="nav-item"><a class="nav-link active" href="sobre.html">Sobre Nós</a></li>
-        <li class="nav-item"><a class="nav-link" href="servicos.html">Serviços</a></li>
-        <li class="nav-item"><a class="nav-link" href="contato.html">Contato</a></li>
-        <li class="nav-item"><a class="nav-link" href="pagina_produtos.html">Produtos</a></li>
-        <li class="nav-item">
-          <a class="nav-link carrinho d-flex align-items-center" href="carrinho.html">
-            <img src="../Cliente/img/icone_carrinho.svg" alt="Carrinho" width="22" height="22">
-          </a>
-        </li>
-        <li class="nav-item"><a href="entrar.html" class="btn btn-entrar ms-lg-3">Entrar</a></li>
-      </ul>
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+$botao_login = '
+<li class="nav-item">
+    <a href="entrar.php" class="btn-entrar btn btn-black ms-lg-3">Entrar</a>
+</li>';
+
+if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true && !empty($_SESSION['usuario_nome'])) {
+    
+    $primeiro_nome = explode(' ', $_SESSION['usuario_nome'])[0];
+
+    $link_perfil = ($_SESSION['usuario_tipo'] === 'admin') ? '../admin/dashboard.php' : 'perfil.php';
+    
+    $botao_login = '
+    <li class="nav-item dropdown ms-lg-3">
+        <a class="nav-link dropdown-toggle btn btn-outline-light text-dark bg-white" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="padding: 8px 20px; border-radius: 20px; font-weight: bold;">
+            <i class="fas fa-user me-1"></i> ' . htmlspecialchars($primeiro_nome) . '
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+            <li><a class="dropdown-item" href="' . $link_perfil . '"><i class="fas fa-id-card me-2"></i>Meu Perfil</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item text-danger" href="../Classes/logout.php"><i class="fas fa-sign-out-alt me-2"></i>Sair</a></li>
+        </ul>
+    </li>';
+}
+
+$navbar = '
+<nav class="navbar navbar-custom navbar-expand-lg navbar-dark fixed-top">
+    <div class="container-fluid">
+        <div class="fundo_imagem">
+            <a class="navbar-brand home-link" href="index.php">
+                <img src="img/LMinformatica_logo_h (2).svg" alt="Logo" width="220">
+            </a>
+        </div>
+        
+        <button class="navbar-toggler ms-auto border-0 d-lg-none" type="button" 
+                data-bs-toggle="collapse" data-bs-target="#navbarContent" 
+                aria-controls="navbarContent" aria-expanded="false" 
+                aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <div class="collapse navbar-collapse" id="navbarContent">
+            <form class="d-flex my-2 my-lg-0 mx-lg-auto" style="max-width: 350px; width: 100%;">
+                <input class="form-control rounded-start border-0 comeco" type="search" placeholder="Pesquisar">
+                <button class="btn btn-light rounded-end border-0 final" type="submit">Buscar</button>
+            </form>
+            
+            <ul class="navbar-nav ms-lg-auto mb-2 mb-lg-0"> 
+                <li class="nav-item"><a class="nav-link active" href="index.php">Home</a></li>
+                <li class="nav-item"><a class="nav-link active" href="cadastro.php">Cadastrar</a></li>
+                <li class="nav-item"><a class="nav-link active" href="sobre.php">Sobre Nós</a></li>
+                <li class="nav-item"><a class="nav-link active" href="servicos.php">Serviços</a></li>
+                <li class="nav-item"><a class="nav-link active" href="contato.php">Contato</a></li>
+                <li class="nav-item">
+                    <a class="nav-link carrinho" href="carrinho.php">
+                        <img src="img/icone_carrinho.svg" alt="Carrinho">
+                    </a>
+                </li>
+                
+                ' . $botao_login . '
+                
+            </ul>
+        </div>
     </div>
-  </div>
 </nav>';
+
 
 $css_admin = '
 <style>
@@ -204,4 +244,3 @@ $botao_tabela_servico = '
     <button title="Editar" class="btn btn-sm btn-warning text-white" data-bs-toggle="modal" data-bs-target="#modalEditar"><i class="bi bi-pencil-fill"></i></button>
     <button title="Concluir" class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#modalExcluir"><i class="bi bi-check-lg"></i></button>
 </div>';
-?>

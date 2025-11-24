@@ -3,6 +3,7 @@ session_start();
 
 require_once '../Classes/conecta.php';
 require_once '../Classes/cliente.php';
+include '../Classes/layout.php';
 
 $dados = [
     'nome' => '', 'email' => '', 'telefone' => '', 'endereco' => '', 
@@ -94,23 +95,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 
 <body>
-    <nav class="navbar navbar-custom navbar-expand-lg navbar-dark fixed-top">
-        <div class="container-fluid ">
-            <div class="fundo_imagem">
-                <a class="navbar-brand home-link " href="index.html">
-                    <img src="img/LMinformatica_logo_h (2).svg" alt="Logo" width="200">
-                </a>
-            </div>
-            <div class="collapse navbar-collapse justify-content-end" id="navbarMenu">
-                <ul class="navbar-nav">
-                    <li class="nav-item"><a class="nav-link active" href="index.php">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" style="color: white;" href="sobre.html">Sobre Nós</a></li>
-                    <li class="nav-item"><a class="nav-link" style="color: white;" href="servicos.html">Serviços</a></li>
-                    <li class="nav-item"><a class="nav-link" style="color: white;" href="contato.html">Contato</a></li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+    <?php 
+    echo $navbar;
+    ?>
 
     <div class="centraliza">
         <div class="fundo-cadastro">
