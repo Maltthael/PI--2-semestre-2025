@@ -17,6 +17,7 @@ $navbar = '<nav class="navbar navbar-expand-lg navbar-custom fixed-top">
         <li class="nav-item"><a class="nav-link active" href="sobre.html">Sobre Nós</a></li>
         <li class="nav-item"><a class="nav-link" href="servicos.html">Serviços</a></li>
         <li class="nav-item"><a class="nav-link" href="contato.html">Contato</a></li>
+        <li class="nav-item"><a class="nav-link" href="pagina_produtos.html">Produtos</a></li>
         <li class="nav-item">
           <a class="nav-link carrinho d-flex align-items-center" href="carrinho.html">
             <img src="../Cliente/img/icone_carrinho.svg" alt="Carrinho" width="22" height="22">

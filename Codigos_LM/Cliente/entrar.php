@@ -74,19 +74,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 
     <script>
-        // Faz a mensagem aparecer suavemente
         const msg = document.getElementById("msgErro");
         msg.style.opacity = "0";
         msg.style.transition = "opacity 0.5s ease";
 
         setTimeout(() => {
-            msg.style.opacity = "1"; // aparece suavemente
+            msg.style.opacity = "1"; 
         }, 100);
 
-        // Depois de 3 segundos, some lentamente
         setTimeout(() => {
             msg.style.opacity = "0";
-            setTimeout(() => msg.remove(), 500); // remove do DOM
+            setTimeout(() => msg.remove(), 500); 
         }, 3000);
     </script>
 <?php } ?>
@@ -107,9 +105,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <a href="cadastro.php">
                     <button type="button" class="btn-cadastrar">Cadastrar-se</button>
                 </a>
-            </div>
-            <div class="form-group" style="text-align: center; margin-top: 20px;">
-                <a href="#" ; style="color: #a200b7; text-decoration: none;">Esqueceu a senha?</a>
             </div>
         </div>
     </div>
