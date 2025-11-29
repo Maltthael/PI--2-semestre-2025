@@ -1,15 +1,27 @@
 <?php
 require_once '../Classes/conecta.php';
-include '../Classes/layout.php';
+require_once '../Classes/layout.php';
+require_once '../Classes/produto.php';
+
+$conn = conecta_bd::getInstance()->getConnection();
+
+$produtoObj = new Produto($conn);
+
+$resultado = $produtoObj->listarComFiltros($_GET);
+
+$lista_categorias = $produtoObj->buscarTodasCategorias();
+
+$preco_max = isset($_GET['preco_max']) ? $_GET['preco_max'] : 5000;
+$busca_atual = isset($_GET['busca']) ? $_GET['busca'] : '';
 ?>
 
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Produtos - LM Informática</title>
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
@@ -18,199 +30,133 @@ include '../Classes/layout.php';
 </head>
 
 <body>
-    <?php
-     echo $navbar;
-    ?>
+    <?php echo $navbar; ?>
+    
     <section class="produtos-section py-5" id="produtos">
         <div class="container">
             <h2 class="text-center mb-5 section-title">Nossos Produtos</h2>
 
             <div class="row">
+                
                 <aside class="col-lg-3 col-md-4 mb-4">
                     <div class="card shadow-sm border-0">
                         <div class="card-body">
                             <h5 class="card-title mb-3">Filtrar Produtos</h5>
-
-                            <div class="mb-4">
-                                <h6 class="fw-bold">Categoria</h6>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="notebooks">
-                                    <label class="form-check-label" for="notebooks">Notebooks</label>
+                            
+                            <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="GET">
+                                
+                                <div class="mb-4">
+                                    <h6 class="fw-bold">Pesquisar</h6>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" name="busca" 
+                                               placeholder="Nome do produto..." 
+                                               value="<?php echo htmlspecialchars($busca_atual); ?>">
+                                        <button class="btn btn-outline-primary" type="submit">
+                                            <i class="fas fa-search"></i>
+                                        </button>
+                                    </div>
                                 </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="perifericos">
-                                    <label class="form-check-label" for="perifericos">Periféricos</label>
+
+                                <div class="mb-4">
+                                    <h6 class="fw-bold">Categorias</h6>
+                                    <?php if (!empty($lista_categorias)): ?>
+                                        <?php foreach($lista_categorias as $cat): ?>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" 
+                                                       name="categorias[]" 
+                                                       value="<?php echo $cat['id_categoria']; ?>" 
+                                                       id="cat_<?php echo $cat['id_categoria']; ?>"
+                                                       <?php if(isset($_GET['categorias']) && in_array($cat['id_categoria'], $_GET['categorias'])) echo 'checked'; ?>>
+                                                <label class="form-check-label" for="cat_<?php echo $cat['id_categoria']; ?>">
+                                                    <?php echo htmlspecialchars($cat['nome_categoria']); ?>
+                                                </label>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <p class="text-muted small">Nenhuma categoria encontrada.</p>
+                                    <?php endif; ?>
                                 </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="armazenamento">
-                                    <label class="form-check-label" for="armazenamento">Armazenamento</label>
+
+                                <div class="mb-4">
+                                    <h6 class="fw-bold">Faixa de Preço</h6>
+                                    <input type="range" class="form-range" name="preco_max" min="0" max="10000" step="100" 
+                                           id="precoRange" value="<?php echo $preco_max; ?>" 
+                                           oninput="document.getElementById('valorPreco').innerText = this.value">
+                                    <p class="text-muted small mb-0">Até R$ <span id="valorPreco"><?php echo $preco_max; ?></span></p>
                                 </div>
-                            </div>
 
-                            <div class="mb-4">
-                                <h6 class="fw-bold">Faixa de Preço</h6>
-                                <input type="range" class="form-range" min="0" max="5000" step="100" id="precoRange">
-                                <p class="text-muted small mb-0">Até R$ <span id="valorPreco">5000</span></p>
-                            </div>
-
-                            <div class="mb-4">
-                                <h6 class="fw-bold">Marca</h6>
-                                <select class="form-select">
-                                    <option selected>Todas</option>
-                                    <option>Dell</option>
-                                    <option>Logitech</option>
-                                    <option>Kingston</option>
-                                    <option>Redragon</option>
-                                </select>
-                            </div>
-
-                            <button class="btn btn-primary w-100">Aplicar Filtros</button>
+                                <button type="submit" class="btn btn-primary w-100">Aplicar Filtros</button>
+                                
+                                <a href="<?php echo $_SERVER['PHP_SELF']; ?>" class="btn btn-outline-secondary w-100 mt-2">Limpar Filtros</a>
+                            </form>
                         </div>
                     </div>
                 </aside>
 
                 <div class="col-lg-9 col-md-8">
                     <div class="row g-4">
+                        
+                        <?php if ($resultado->rowCount() > 0): ?>
+                            <?php while($produto = $resultado->fetch(PDO::FETCH_ASSOC)): ?>
+                                
+                                <div class="col-md-6 col-lg-4">
+                                    <div class="card produto-card h-100">
+                                        
+                                        <?php 
+                                            $nome_arquivo = $produto['foto'];
+                                            $caminho_imagem = "../admin/img/produtos/" . $nome_arquivo;
 
-                        <div class="col-md-6 col-lg-4">
-                            <div class="card produto-card h-100">
-                                <div class="badge-oferta">-20%</div>
-                                <img src="img/imagem_azul.png" class="card-img-top" alt="Notebook Dell Inspiron">
-                                <div class="card-body d-flex flex-column">
-                                    <h5 class="card-title">Notebook Dell Inspiron</h5>
-                                    <p class="card-text">i5 10ª geração, 8GB RAM, SSD 256GB</p>
-                                    <div class="preco mt-auto">
-                                        <span class="preco-antigo">R$ 3.999,00</span><br>
-                                        <span class="preco-atual">R$ 3.199,00</span><br>
-                                        <span class="parcelamento">ou 12x de R$ 299,90</span>
+                                            if (!empty($nome_arquivo) && file_exists($caminho_imagem)) {
+                                                $imagem_final = $caminho_imagem;
+                                            } else {
+                                                $imagem_final = "https://via.placeholder.com/300x200?text=Sem+Foto";
+                                            }
+                                        ?>
+                                        
+                                        <img src="<?php echo $imagem_final; ?>" 
+                                             class="card-img-top" 
+                                             alt="<?php echo htmlspecialchars($produto['nome_produto']); ?>"
+                                             style="height: 200px; object-fit: contain; padding: 15px; background-color: #fff;">
+                                        
+                                        <div class="card-body d-flex flex-column">
+                                            <h5 class="card-title"><?php echo htmlspecialchars($produto['nome_produto']); ?></h5>
+                                            
+                                            <p class="card-text text-muted" style="font-size: 0.9em;">
+                                                <?php echo htmlspecialchars(substr($produto['descricao'], 0, 80)) . '...'; ?>
+                                            </p>
+                                            
+                                            <div class="preco mt-auto">
+                                                <span class="preco-atual">R$ <?php echo number_format($produto['preco_venda'], 2, ',', '.'); ?></span><br>
+                                                <span class="parcelamento">ou 10x de R$ <?php echo number_format($produto['preco_venda']/10, 2, ',', '.'); ?></span>
+                                            </div>
+                                            
+                                            <a href="detalhes_produto.php?id=<?php echo $produto['id_produto']; ?>" class="btn btn-primary w-100 mt-3">Ver Detalhes</a>
+                                        </div>
                                     </div>
-                                    <a href="#" class="btn btn-primary w-100 mt-3">Comprar</a>
                                 </div>
-                            </div>
-                        </div>
 
-                        <div class="col-md-6 col-lg-4">
-                            <div class="card produto-card h-100">
-                                <img src="img/imagem_azul.png" class="card-img-top" alt="Mouse Gamer">
-                                <div class="card-body d-flex flex-column">
-                                    <h5 class="card-title">Mouse Gamer Redragon</h5>
-                                    <p class="card-text">RGB, 12400DPI, 7 botões programáveis</p>
-                                    <div class="preco mt-auto">
-                                        <span class="preco-atual">R$ 199,90</span><br>
-                                        <span class="parcelamento">ou 3x de R$ 66,63</span>
-                                    </div>
-                                    <a href="#" class="btn btn-primary w-100 mt-3">Comprar</a>
+                            <?php endwhile; ?>
+                        <?php else: ?>
+                            <div class="col-12 text-center py-5">
+                                <div class="alert alert-warning">
+                                    <h4>Nenhum produto encontrado! 😕</h4>
+                                    <p>Tente buscar por outro nome ou mudar os filtros.</p>
                                 </div>
                             </div>
-                        </div>
+                        <?php endif; ?>
 
-                        <div class="col-md-6 col-lg-4">
-                            <div class="card produto-card h-100">
-                                <div class="badge-oferta">-15%</div>
-                                <img src="img/imagem_azul.png" class="card-img-top" alt="SSD Kingston">
-                                <div class="card-body d-flex flex-column">
-                                    <h5 class="card-title">SSD Kingston 480GB</h5>
-                                    <p class="card-text">SATA III, Leitura 500MB/s</p>
-                                    <div class="preco mt-auto">
-                                        <span class="preco-antigo">R$ 299,90</span><br>
-                                        <span class="preco-atual">R$ 254,90</span><br>
-                                        <span class="parcelamento">ou 4x de R$ 63,73</span>
-                                    </div>
-                                    <a href="#" class="btn btn-primary w-100 mt-3">Comprar</a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-lg-4">
-                            <div class="card produto-card h-100">
-                                <div class="badge-oferta">-15%</div>
-                                <img src="img/imagem_azul.png" class="card-img-top" alt="SSD Kingston">
-                                <div class="card-body d-flex flex-column">
-                                    <h5 class="card-title">SSD Kingston 480GB</h5>
-                                    <p class="card-text">SATA III, Leitura 500MB/s</p>
-                                    <div class="preco mt-auto">
-                                        <span class="preco-antigo">R$ 299,90</span><br>
-                                        <span class="preco-atual">R$ 254,90</span><br>
-                                        <span class="parcelamento">ou 4x de R$ 63,73</span>
-                                    </div>
-                                    <a href="#" class="btn btn-primary w-100 mt-3">Comprar</a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-lg-4">
-                            <div class="card produto-card h-100">
-                                <div class="badge-oferta">-15%</div>
-                                <img src="img/imagem_azul.png" class="card-img-top" alt="SSD Kingston">
-                                <div class="card-body d-flex flex-column">
-                                    <h5 class="card-title">SSD Kingston 480GB</h5>
-                                    <p class="card-text">SATA III, Leitura 500MB/s</p>
-                                    <div class="preco mt-auto">
-                                        <span class="preco-antigo">R$ 299,90</span><br>
-                                        <span class="preco-atual">R$ 254,90</span><br>
-                                        <span class="parcelamento">ou 4x de R$ 63,73</span>
-                                    </div>
-                                    <a href="#" class="btn btn-primary w-100 mt-3">Comprar</a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-lg-4">
-                            <div class="card produto-card h-100">
-                                <div class="badge-oferta">-15%</div>
-                                <img src="img/imagem_azul.png" class="card-img-top" alt="SSD Kingston">
-                                <div class="card-body d-flex flex-column">
-                                    <h5 class="card-title">SSD Kingston 480GB</h5>
-                                    <p class="card-text">SATA III, Leitura 500MB/s</p>
-                                    <div class="preco mt-auto">
-                                        <span class="preco-antigo">R$ 299,90</span><br>
-                                        <span class="preco-atual">R$ 254,90</span><br>
-                                        <span class="parcelamento">ou 4x de R$ 63,73</span>
-                                    </div>
-                                    <a href="#" class="btn btn-primary w-100 mt-3">Comprar</a>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <footer class="text-center py-4 footer" style="color: white;">
+    <footer class="text-center py-4 footer" style="color: white; background-color: #333;">
         <div class="container">
-            <div class="row">
-                <div class="col-md-4 mb-3 mb-md-0">
-                    <div class="fundo_imagem">
-                        <a class="navbar-brand home-link" href="index.html">
-                            <img src="img/LMinformatica_logo_h (2).svg" alt="Logo" width="200">
-                        </a>
-                    </div>
-                </div>
-                <div class="col-md-4 mb-3 mb-md-0">
-                    <h5>Links Rápidos</h5>
-                    <ul class="list-unstyled">
-                        <li class="nav-item">
-                            <a class="nav-link active" href="sobre.html">Sobre Nós</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="servicos.html">Serviços</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="contato.html">Contato</a>
-                        </li>
-                        <li>
-                    </ul>
-                </div>
-                <div class="col-md-4">
-                    <h5>Contato</h5>
-                    <ul class="list-unstyled">
-                        <li><i class="fas fa-phone me-2"></i> (XX) XXXX-XXXX</li>
-                        <li><i class="fas fa-envelope me-2"></i> contato@lminformatica.com.br</li>
-                    </ul>
-                </div>
-            </div>
-            <hr class="my-4 bg-light">
-            <p class="mb-0">&copy; 2025 LM Informática. Todos os direitos reservados.</p>
+           <p class="mb-0">&copy; 2025 LM Informática. Todos os direitos reservados.</p>
         </div>
     </footer>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-
 </html>

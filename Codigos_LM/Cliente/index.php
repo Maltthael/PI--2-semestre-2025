@@ -53,7 +53,7 @@ try {
                 <div class="carousel-caption d-none d-md-block">
                     <h2 class="fw-bold">Notebooks de Alta Performance</h2>
                     <p class="fs-5">Trabalhe ou jogue com a máxima velocidade. Confira nossa linha Dell e Lenovo.</p>
-                    <a href="#produtos" class="btn btn-primary btn-lg mt-2">Ver Ofertas</a>
+                    <a href="produtos.php?categorias[]=1" class="btn btn-primary btn-lg mt-2">Ver Ofertas</a>
                 </div>
             </div>
 
@@ -66,7 +66,7 @@ try {
                 <div class="carousel-caption d-none d-md-block">
                     <h2 class="fw-bold">Acessórios Gamer</h2>
                     <p class="fs-5">Mouses, teclados mecânicos e headsets para elevar o seu nível.</p>
-                    <a href="#produtos" class="btn btn-info text-white btn-lg mt-2">Upgrade no Setup</a>
+                    <a href="produtos.php" class="btn btn-info text-white btn-lg mt-2">Upgrade no Setup</a>
                 </div>
             </div>
 
@@ -105,24 +105,27 @@ try {
                         
                         $caminho_imagem = "../admin/img/produtos/" . $prod['foto'];
                         if (empty($prod['foto']) || !file_exists($caminho_imagem)) {
-                            $caminho_imagem = "img/imagem_azul.png"; 
+                            $caminho_imagem = "https://via.placeholder.com/300x200?text=Sem+Foto"; 
                         }
 
                         $preco = number_format($prod['preco_venda'], 2, ',', '.');
-                        
                         $parcela = number_format($prod['preco_venda'] / 12, 2, ',', '.');
                     ?>
 
                     <div class="col-md-6 col-lg-3">
-                        <div class="card produto-card h-100"> <?php if($prod['preco_venda'] > 2000): ?>
+                        <div class="card produto-card h-100"> 
+                            
+                            <?php if($prod['preco_venda'] > 2000): ?>
                                 <div class="badge-oferta">Oferta</div>
                             <?php endif; ?>
 
                             <div style="height: 200px; overflow: hidden; display: flex; align-items: center; justify-content: center;">
-                                <img src="<?php echo htmlspecialchars($caminho_imagem); ?>" 
-                                     class="card-img-top" 
-                                     alt="<?php echo htmlspecialchars($prod['nome_produto']); ?>"
-                                     style="max-height: 100%; width: auto;">
+                                <a href="detalhes_produto.php?id=<?php echo $prod['id_produto']; ?>" class="d-block w-100 h-100 d-flex align-items-center justify-content-center">
+                                    <img src="<?php echo htmlspecialchars($caminho_imagem); ?>" 
+                                         class="card-img-top" 
+                                         alt="<?php echo htmlspecialchars($prod['nome_produto']); ?>"
+                                         style="max-height: 100%; width: auto; object-fit: contain;">
+                                </a>
                             </div>
 
                             <div class="card-body d-flex flex-column">
@@ -137,7 +140,7 @@ try {
                                     <span class="parcelamento d-block">ou 12x de R$ <?php echo $parcela; ?></span>
                                 </div>
                                 
-                                <a href="#" class="btn btn-primary w-100 mt-3">Comprar</a>
+                                <a href="detalhes_produto.php?id=<?php echo $prod['id_produto']; ?>" class="btn btn-primary w-100 mt-3">Ver Detalhes</a>
                             </div>
                         </div>
                     </div>
@@ -191,7 +194,7 @@ try {
             <div class="row">
                 <div class="col-md-4 mb-3 mb-md-0">
                     <div class="fundo_imagem">
-                        <a class="navbar-brand home-link" href="index.html">
+                        <a class="navbar-brand home-link" href="index.php">
                             <img src="img/LMinformatica_logo_h (2).svg" alt="Logo" width="200">
                         </a>
                     </div>
@@ -199,16 +202,16 @@ try {
                 <div class="col-md-4 mb-3 mb-md-0">
                     <h5>Links Rápidos</h5>
                     <ul class="list-unstyled">
-                        <li class="nav-item"><a class="nav-link" href="sobre.html">Sobre Nós</a></li>
-                        <li class="nav-item"><a class="nav-link" href="servicos.html">Serviços</a></li>
-                        <li class="nav-item"><a class="nav-link" href="contato.html">Contato</a></li>
+                        <li class="nav-item"><a class="nav-link" href="sobre.php">Sobre Nós</a></li>
+                        <li class="nav-item"><a class="nav-link" href="servicos.php">Serviços</a></li>
+                        <li class="nav-item"><a class="nav-link" href="contato.php">Contato</a></li>
                     </ul>
                 </div>
                 <div class="col-md-4">
                     <h5>Contato</h5>
                     <ul class="list-unstyled">
-                        <li><i class="fas fa-phone me-2"></i> (XX) XXXX-XXXX</li>
-                        <li><i class="fas fa-envelope me-2"></i> contato@lminformatica.com.br</li>
+                        <li><i class="fas fa-phone me-2"></i> (19) 98939-1398 (WhatsApp)</li>
+                        <li><i class="fas fa-envelope me-2"></i> lmtecnologia1100@outlook</li>
                     </ul>
                 </div>
             </div>

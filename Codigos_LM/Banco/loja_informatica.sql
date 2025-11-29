@@ -1,4 +1,4 @@
-CREATE DATABASE IF NOT EXISTS `loja_informatica` 
+CREATE DATABASE IF NOT EXISTS `loja_informatica` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 USE `loja_informatica`;
 
 CREATE TABLE IF NOT EXISTS `adm` (
@@ -8,14 +8,17 @@ CREATE TABLE IF NOT EXISTS `adm` (
   `senha` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id_adm`),
   UNIQUE KEY `email` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+INSERT INTO `adm` (`nome`, `email`, `senha`) VALUES
+('Administrador', 'adminLM@gmail.com', 'Admin2025.');
 
 CREATE TABLE IF NOT EXISTS `categorias` (
   `id_categoria` int(11) NOT NULL AUTO_INCREMENT,
   `nome_categoria` varchar(100) NOT NULL,
   PRIMARY KEY (`id_categoria`),
   UNIQUE KEY `nome_categoria` (`nome_categoria`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `cliente` (
   `id_cliente` int(11) NOT NULL AUTO_INCREMENT,
@@ -31,7 +34,7 @@ CREATE TABLE IF NOT EXISTS `cliente` (
   `cpf` varchar(11) DEFAULT NULL,
   `telefone` varchar(14) DEFAULT NULL,
   PRIMARY KEY (`id_cliente`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 CREATE TABLE IF NOT EXISTS `estoque` (
   `id_produto` int(11) NOT NULL AUTO_INCREMENT,
@@ -50,7 +53,20 @@ CREATE TABLE IF NOT EXISTS `estoque` (
   KEY `fk_estoque_categoria` (`fk_id_categoria`),
   CONSTRAINT `FK_estoque_adm` FOREIGN KEY (`fk_adm_id_adm`) REFERENCES `adm` (`id_adm`),
   CONSTRAINT `fk_estoque_categoria` FOREIGN KEY (`fk_id_categoria`) REFERENCES `categorias` (`id_categoria`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+CREATE TABLE IF NOT EXISTS `vendas` (
+  `id_vendas` int(11) NOT NULL AUTO_INCREMENT,
+  `data_venda` date DEFAULT NULL,
+  `valor_total` decimal(10,2) DEFAULT NULL,
+  `fk_cliente_id_cliente` int(11) DEFAULT NULL,
+  `fk_adm_id_adm` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id_vendas`),
+  KEY `FK_vendas_cliente` (`fk_cliente_id_cliente`),
+  KEY `FK_vendas_adm` (`fk_adm_id_adm`),
+  CONSTRAINT `FK_vendas_adm` FOREIGN KEY (`fk_adm_id_adm`) REFERENCES `adm` (`id_adm`),
+  CONSTRAINT `FK_vendas_cliente` FOREIGN KEY (`fk_cliente_id_cliente`) REFERENCES `cliente` (`id_cliente`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 CREATE TABLE IF NOT EXISTS `itens_venda` (
   `id_itens_vendas` int(11) NOT NULL AUTO_INCREMENT,
@@ -74,7 +90,7 @@ CREATE TABLE IF NOT EXISTS `ordem_servico` (
   PRIMARY KEY (`id_ordem`),
   KEY `FK_ordem_servico_cliente` (`fk_cliente_id_cliente`),
   CONSTRAINT `FK_ordem_servico_cliente` FOREIGN KEY (`fk_cliente_id_cliente`) REFERENCES `cliente` (`id_cliente`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 CREATE TABLE IF NOT EXISTS `relatorio` (
   `id_relatorio` int(11) NOT NULL AUTO_INCREMENT,
@@ -85,19 +101,50 @@ CREATE TABLE IF NOT EXISTS `relatorio` (
   PRIMARY KEY (`id_relatorio`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
-CREATE TABLE IF NOT EXISTS `vendas` (
-  `id_vendas` int(11) NOT NULL AUTO_INCREMENT,
-  `data_venda` date DEFAULT NULL,
-  `valor_total` decimal(10,2) DEFAULT NULL,
-  `fk_cliente_id_cliente` int(11) DEFAULT NULL,
-  `fk_adm_id_adm` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id_vendas`),
-  KEY `FK_vendas_cliente` (`fk_cliente_id_cliente`),
-  KEY `FK_vendas_adm` (`fk_adm_id_adm`),
-  CONSTRAINT `FK_vendas_adm` FOREIGN KEY (`fk_adm_id_adm`) REFERENCES `adm` (`id_adm`),
-  CONSTRAINT `FK_vendas_cliente` FOREIGN KEY (`fk_cliente_id_cliente`) REFERENCES `cliente` (`id_cliente`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+DELIMITER //
+CREATE PROCEDURE `sp_comparativo_custo_venda`()
+BEGIN
+    SELECT 
+        MONTH(v.data_venda) AS mes,
+        SUM(e.preco_custo * iv.quantidade_vendida) AS custo_total,
+        SUM(iv.precounitario_venda * iv.quantidade_vendida) AS venda_total
+    FROM vendas v
+    JOIN itens_venda iv 
+        ON v.id_vendas = iv.fk_vendas_id_venda
+    JOIN estoque e 
+        ON iv.fk_estoque_id_produto = e.id_produto
+    GROUP BY MONTH(v.data_venda)
+    ORDER BY mes ASC;
+END//
+DELIMITER ;
 
-INSERT INTO `adm` (`id_adm`, `nome`, `email`, `senha`) VALUES
-(1, 'Administrador', 'AdminLM@gmail.com', 'admin2025')
-ON DUPLICATE KEY UPDATE email=email;
+DELIMITER //
+CREATE PROCEDURE `sp_status_chamados`()
+BEGIN
+    SELECT 
+        CASE 
+            WHEN status = 'aberto' THEN 'abertos'
+            WHEN status = 'em_andamento' THEN 'pendente'
+            WHEN status = 'concluido' THEN 'encerrados'
+            WHEN status = 'cancelado' THEN 'cancelado'
+        END AS status,
+        COUNT(*) AS qtd
+    FROM ordem_servico
+    GROUP BY status;
+END//
+DELIMITER ;
+
+DELIMITER //
+CREATE PROCEDURE `sp_vendas_por_mes`(
+	IN `ano` INT
+)
+BEGIN
+    SELECT 
+        MONTH(data_venda) AS mes,
+        SUM(valor_total)  AS total
+    FROM vendas
+    WHERE YEAR(data_venda) = ano
+    GROUP BY MONTH(data_venda)
+    ORDER BY mes ASC;
+END//
+DELIMITER ;

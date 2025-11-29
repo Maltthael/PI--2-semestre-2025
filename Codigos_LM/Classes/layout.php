@@ -8,11 +8,13 @@ $botao_login = '
     <a href="entrar.php" class="btn-entrar btn btn-black ms-lg-3">Entrar</a>
 </li>';
 
+$item_cadastro = '<li class="nav-item"><a class="nav-link active" href="cadastro.php">Cadastrar</a></li>';
+
 if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true && !empty($_SESSION['usuario_nome'])) {
     
     $primeiro_nome = explode(' ', $_SESSION['usuario_nome'])[0];
 
-    $link_perfil = ($_SESSION['usuario_tipo'] === 'admin') ? '../admin/dashboard.php' : 'perfil.php';
+    $link_perfil = ($_SESSION['usuario_tipo'] === 'admin') ? '../admin/dashboard.php' : 'perfil_cliente.php';
     
     $botao_login = '
     <li class="nav-item dropdown ms-lg-3">
@@ -25,6 +27,8 @@ if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true && !empty($
             <li><a class="dropdown-item text-danger" href="../Classes/logout.php"><i class="fas fa-sign-out-alt me-2"></i>Sair</a></li>
         </ul>
     </li>';
+
+    $item_cadastro = '';
 }
 
 $navbar = '
@@ -51,7 +55,9 @@ $navbar = '
             
             <ul class="navbar-nav ms-lg-auto mb-2 mb-lg-0"> 
                 <li class="nav-item"><a class="nav-link active" href="index.php">Home</a></li>
-                <li class="nav-item"><a class="nav-link active" href="cadastro.php">Cadastrar</a></li>
+                
+                ' . $item_cadastro . '
+                
                 <li class="nav-item"><a class="nav-link active" href="sobre.php">Sobre Nós</a></li>
                 <li class="nav-item"><a class="nav-link active" href="servicos.php">Serviços</a></li>
                 <li class="nav-item"><a class="nav-link active" href="contato.php">Contato</a></li>
@@ -67,6 +73,7 @@ $navbar = '
         </div>
     </div>
 </nav>';
+
 
 
 $css_admin = '
@@ -195,8 +202,8 @@ $sidebar_content = '
         </a>
     </nav>
 
-    <a href="../Cliente/entrar.php" class="logout-btn">
-        <i class="fas fa-sign-out-alt me-2"></i> Sair do Sistema
+    <a href="../Cliente/index.php" class="logout-btn">
+        <i class="fas fa-sign-out-alt me-2"></i> Sair do Perfil
     </a>
 </div>
 ';

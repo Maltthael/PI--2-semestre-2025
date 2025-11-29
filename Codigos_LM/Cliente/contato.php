@@ -1,6 +1,39 @@
 <?php
+session_start();
 require_once '../Classes/conecta.php';
-include '../Classes/layout.php';
+require_once '../Classes/layout.php';
+require_once '../Classes/cliente.php'; 
+
+$conn = conecta_bd::getInstance()->getConnection();
+$mensagem_feedback = "";
+
+$dados_usuario = ['nome' => '', 'email' => '', 'telefone' => ''];
+$esta_logado = false;
+
+if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true && $_SESSION['usuario_tipo'] === 'cliente') {
+    $esta_logado = true;
+    $id_cliente = $_SESSION['usuario_id'];
+    
+    $dados = Cliente::buscarDadosPorId($conn, $id_cliente);
+    if ($dados) {
+        $dados_usuario = $dados;
+    }
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!$esta_logado) {
+        $mensagem_feedback = "<div class='alert alert-warning'>Você precisa fazer <b>Login</b> para abrir um chamado.</div>";
+    } else {
+        $assunto = $_POST['assunto'];
+        $servico = $_POST['servico'];
+        
+        if (Cliente::abrirOrdemServico($conn, $id_cliente, $assunto, $servico)) {
+            $mensagem_feedback = "<div class='alert alert-success'>Ordem de Serviço aberta com sucesso!</div>";
+        } else {
+            $mensagem_feedback = "<div class='alert alert-danger'>Erro ao abrir Ordem de Serviço.</div>";
+        }
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -19,77 +52,24 @@ include '../Classes/layout.php';
 </head>
 
 <body>
-<<<<<<<< HEAD:Codigos_LM/Cliente/contato.php
- <?php
- echo $navbar;
- ?>
-========
-   <nav class="navbar navbar-custom navbar-expand-lg navbar-dark fixed-top">
-    <div class="container-fluid">
-        <div class="fundo_imagem">
-            <a class="navbar-brand home-link" href="index.html">
-                <img src="img/LMinformatica_logo_h (2).svg" alt="Logo" width="220">
-            </a>
-        </div>
-        
-        <button class="navbar-toggler ms-auto border-0 d-lg-none" type="button" 
-                data-bs-toggle="collapse" data-bs-target="#navbarContent" 
-                aria-controls="navbarContent" aria-expanded="false" 
-                aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        
-        <div class="collapse navbar-collapse" id="navbarContent">
-            <form class="d-flex my-2 my-lg-0 mx-lg-auto" style="max-width: 350px; width: 100%;">
-                <input class="form-control rounded-start border-0 comeco" type="search" placeholder="Pesquisar">
-                <button class="btn btn-light rounded-end border-0 final" type="submit">Buscar</button>
-            </form>
-            
-            <ul class="navbar-nav ms-lg-auto mb-2 mb-lg-0">
-                <li class="nav-item">
-                    <a class="nav-link" href="index.html">Home</a>
-                </li>
-                <li class="nav-item">
-
-                    <a class="nav-link" href="cadastro.php">Cadastrar</a>
-                </li>
-                <li class="nav-item">
-
-                    <a class="nav-link" href="sobre.html">Sobre Nós</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="servicos.html">Serviços</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link active" href="contato.html">Contato</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link carrinho" href="carrinho.html">
-                        <img src="img/icone_carrinho.svg" alt="Carrinho">
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="entrar.php" class="btn-entrar btn btn-black ms-lg-3">
-                        Entrar
-                    </a>
-                </li>
-            </ul>
-        </div>
-    </div>
-</nav>
->>>>>>>> main:Codigos_LM/Cliente/contato.html
+    <?php echo $navbar; ?>
+    
     <section class="contact-hero">
         <div class="container">
             <div class="row align-items-center">
                 <div class="col-lg-8 mx-auto text-center">
                     <h1 class="display-4 fw-bold mb-4">Fale Conosco</h1>
-                    <p class="lead">Estamos prontos para ajudar com seus problemas técnicos</p>
+                    <p class="lead">Abra um chamado técnico e acompanhe pelo seu perfil</p>
                 </div>
             </div>
         </div>
     </section>
+
     <section class="contact-main py-5">
         <div class="container">
+            
+            <?php if (!empty($mensagem_feedback)) echo $mensagem_feedback; ?>
+
             <div class="row g-5">
                 <div class="col-lg-6">
                     <div class="contact-card">
@@ -97,42 +77,24 @@ include '../Classes/layout.php';
                         
                         <div class="contact-info">
                             <div class="info-item">
-                                <div class="info-icon">
-                                    <i class="fas fa-map-marker-alt"></i>
-                                </div>
+                                <div class="info-icon"><i class="fas fa-map-marker-alt"></i></div>
                                 <div class="info-content">
                                     <h4>Endereço</h4>
-                                    <p>Rua Exemplo, 1234 - Centro<br>São Paulo/SP - CEP 01000-000</p>
+                                    <p>Rua José Nelson Guiray, 447 - Jardim Apolo<br>Araras/SP</p>
                                 </div>
                             </div>
-                            
                             <div class="info-item">
-                                <div class="info-icon">
-                                    <i class="fas fa-phone-alt"></i>
-                                </div>
+                                <div class="info-icon"><i class="fas fa-phone-alt"></i></div>
                                 <div class="info-content">
                                     <h4>Telefone</h4>
-                                    <p>(11) 9999-9999<br>(11) 8888-8888 (WhatsApp)</p>
+                                    <p>(19) 98939-1398 (WhatsApp)</p>
                                 </div>
                             </div>
-                            
                             <div class="info-item">
-                                <div class="info-icon">
-                                    <i class="fas fa-envelope"></i>
-                                </div>
+                                <div class="info-icon"><i class="fas fa-envelope"></i></div>
                                 <div class="info-content">
                                     <h4>Email</h4>
-                                    <p>contato@lminformatica.com.br<br>suporte@lminformatica.com.br</p>
-                                </div>
-                            </div>
-                            
-                            <div class="info-item">
-                                <div class="info-icon">
-                                    <i class="fas fa-clock"></i>
-                                </div>
-                                <div class="info-content">
-                                    <h4>Horário de Atendimento</h4>
-                                    <p>Segunda a Sexta: 9h às 18h<br>Sábado: 9h às 13h</p>
+                                    <p>lmtecnologia1100@outlook</p>
                                 </div>
                             </div>
                         </div>
@@ -140,10 +102,9 @@ include '../Classes/layout.php';
                         <div class="social-links mt-5">
                             <h4 class="mb-3">Redes Sociais</h4>
                             <div class="d-flex gap-3">
-                                <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
-                                <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
-                                <a href="#" class="social-icon"><i class="fab fa-whatsapp"></i></a>
-                                <a href="#" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
+                                <a href="https://www.facebook.com/profile.php?id=61567172393826&sk=about" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+                                <a href="https://www.instagram.com/lminformatica100" class="social-icon"><i class="fab fa-instagram"></i></a>
+                                <a href="https://api.whatsapp.com/send/?phone=19989391398&text&type=phone_number&app_absent=0t" class="social-icon"><i class="fab fa-whatsapp"></i></a>
                             </div>
                         </div>
                     </div>
@@ -151,51 +112,55 @@ include '../Classes/layout.php';
                 
                 <div class="col-lg-6">
                     <div class="contact-form">
-                        <h2 class="section-title mb-4">Envie sua Mensagem</h2>
-                        <form>
+                        <h2 class="section-title mb-4">Abrir Ordem de Serviço</h2>
+                        
+                        <form method="POST" action="">
                             <div class="mb-3">
                                 <label for="nome" class="form-label">Nome Completo</label>
-                                <input type="text" class="form-control" id="nome" required>
+                                <input type="text" class="form-control" id="nome" name="nome" 
+                                       value="<?php echo htmlspecialchars($dados_usuario['nome']); ?>" 
+                                       <?php echo $esta_logado ? 'readonly' : ''; ?> required>
                             </div>
                             
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label for="email" class="form-label">Email</label>
-                                    <input type="email" class="form-control" id="email" required>
+                                    <input type="email" class="form-control" id="email" name="email" 
+                                           value="<?php echo htmlspecialchars($dados_usuario['email']); ?>" 
+                                           <?php echo $esta_logado ? 'readonly' : ''; ?> required>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label for="telefone" class="form-label">Telefone</label>
-                                    <input type="tel" class="form-control" id="telefone">
+                                    <input type="tel" class="form-control" id="telefone" name="telefone" 
+                                           value="<?php echo htmlspecialchars($dados_usuario['telefone']); ?>" required>
                                 </div>
                             </div>
                             
                             <div class="mb-3">
                                 <label for="assunto" class="form-label">Assunto</label>
-                                <select class="form-select" id="assunto" required>
+                                <select class="form-select" id="assunto" name="assunto" required>
                                     <option value="" selected disabled>Selecione um assunto</option>
-                                    <option value="orcamento">Orçamento</option>
-                                    <option value="duvida">Dúvida</option>
-                                    <option value="reclamacao">Reclamação</option>
-                                    <option value="elogio">Elogio</option>
+                                    <option value="Orçamento">Orçamento</option>
+                                    <option value="Dúvida Técnica">Dúvida Técnica</option>
+                                    <option value="Manutenção">Solicitar Manutenção</option>
+                                    <option value="Garantia">Garantia</option>
                                 </select>
                             </div>
+
                             <div class="mb-3">
-                                <label for="assunto" class="form-label">Serviço</label>
-                                <select class="form-select" id="assunto">
-                                    <option value="" selected disabled>Selecione o serviço</option>
-                                    <option value="orcamento">Notebook</option>
-                                    <option value="duvida">Desktop</option>
-                                    <option value="reclamacao">Internet</option>
-                                    <option value="outro">Outro</option>
+                                <label for="servico" class="form-label">Serviço</label>
+                                <select class="form-select" id="servico" name="servico" required>
+                                    <option value="" selected disabled>Selecione o equipamento</option>
+                                    <option value="Notebook">Notebook</option>
+                                    <option value="Desktop">Desktop (PC)</option>
+                                    <option value="Impressora">Impressora</option>
+                                    <option value="Periféricos">Periféricos</option>
+                                    <option value="Outros">Outro</option>
                                 </select>
-                            </div>
-                            <div class="mb-3">
-                                <label for="mensagem" class="form-label">Mensagem</label>
-                                <textarea class="form-control" id="mensagem" rows="5" required></textarea>
                             </div>
                             
-                            <div class="d-grid">
-                                <button type="submit" class="btn btn-primary btn-lg">Enviar Mensagem</button>
+                            <div class="d-grid mt-4">
+                                <button type="submit" class="btn btn-primary btn-lg">Abrir Chamado</button>
                             </div>
                         </form>
                     </div>
@@ -203,53 +168,12 @@ include '../Classes/layout.php';
             </div>
         </div>
     </section>
-    <footer class="text-center py-4 footer"  style="color: white;">
+
+    <footer class="text-center py-4 footer" style="color: white;">
         <div class="container">
-            <div class="row">
-                <div class="col-md-4 mb-3 mb-md-0">
-                    <div class="fundo_imagem">
-                        <a class="navbar-brand home-link" href="index.html">
-                            <img src="img/LMinformatica_logo_h (2).svg" alt="Logo" width="200">
-                        </a>
-                    </div>
-                </div>
-                <div class="col-md-4 mb-3 mb-md-0">
-                    <h5>Links Rápidos</h5>
-                    <ul class="list-unstyled">
-                        <li class="nav-item">
-                            <a class="nav-link active" href="sobre.html">Sobre Nós</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="servicos.html">Serviços</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="contato.html">Contato</a>
-                        </li>
-                        <li>
-                    </ul>
-                </div>
-                <div class="col-md-4">
-                    <h5>Contato</h5>
-                    <ul class="list-unstyled">
-                        <li><i class="fas fa-phone me-2"></i> (XX) XXXX-XXXX</li>
-                        <li><i class="fas fa-envelope me-2"></i> contato@lminformatica.com.br</li>
-                    </ul>
-                </div>
-            </div>
-            <hr class="my-4 bg-light">
             <p class="mb-0">&copy; 2025 LM Informática. Todos os direitos reservados.</p>
         </div>
     </footer>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        window.addEventListener('scroll', function () {
-            const navbar = document.querySelector('.navbar-custom');
-            if (window.scrollY > 50) {
-                navbar.classList.add('scrolled');
-            } else {
-                navbar.classList.remove('scrolled');
-            }
-        });
-    </script>
 </body>
 </html>

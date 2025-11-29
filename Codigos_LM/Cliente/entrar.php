@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($login->autenticar($email, $senha)) {
         if (isset($_SESSION['usuario_tipo']) && $_SESSION['usuario_tipo'] === 'admin') {
-            header("Location: ../admin/dashboard.php");
+            header("Location: index.php");
         } else {
             header("Location: index.php");
         }

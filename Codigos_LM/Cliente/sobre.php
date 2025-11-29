@@ -117,8 +117,8 @@ include '../Classes/layout.php';
                 <div class="col-md-4">
                     <h5>Contato</h5>
                     <ul class="list-unstyled">
-                        <li><i class="fas fa-phone me-2"></i> (XX) XXXX-XXXX</li>
-                        <li><i class="fas fa-envelope me-2"></i> contato@lminformatica.com.br</li>
+                        <li><i class="fas fa-phone me-2"></i>(19) 98939-1398 (WhatsApp)</li>
+                        <li><i class="fas fa-envelope me-2"></i> lmtecnologia1100@outlook</li>
                     </ul>
                 </div>
             </div>

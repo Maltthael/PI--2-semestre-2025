@@ -19,64 +19,10 @@ include '../Classes/layout.php';
 </head>
 
 <body>
-<<<<<<<< HEAD:Codigos_LM/Cliente/servicos.php
     <?php
     echo $navbar;
     ?>
-========
-     <nav class="navbar navbar-custom navbar-expand-lg navbar-dark fixed-top">
-    <div class="container-fluid">
-        <div class="fundo_imagem">
-            <a class="navbar-brand home-link" href="index.html">
-            <a class="navbar-brand home-link" href="index.php">
-                <img src="img/LMinformatica_logo_h (2).svg" alt="Logo" width="220">
-            </a>
-        </div>
-        
-        <button class="navbar-toggler ms-auto border-0 d-lg-none" type="button" 
-                data-bs-toggle="collapse" data-bs-target="#navbarContent" 
-                aria-controls="navbarContent" aria-expanded="false" 
-                aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        
-        <div class="collapse navbar-collapse" id="navbarContent">
-            <form class="d-flex my-2 my-lg-0 mx-lg-auto" style="max-width: 350px; width: 100%;">
-                <input class="form-control rounded-start border-0 comeco" type="search" placeholder="Pesquisar">
-                <button class="btn btn-light rounded-end border-0 final" type="submit">Buscar</button>
-            </form>
-            
-            <ul class="navbar-nav ms-lg-auto mb-2 mb-lg-0">
-                <li class="nav-item">
-                    <a class="nav-link" href="index.html">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="cadastro.php">Cadastrar</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="sobre.html">Sobre Nós</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link active" href="servicos.html">Serviços</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="contato.html">Contato</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link carrinho" href="carrinho.html">
-                        <img src="img/icone_carrinho.svg" alt="Carrinho">
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="entrar.php" class="btn-entrar btn btn-black ms-lg-3">
-                        Entrar
-                    </a>
-                </li>
-            </ul>
-        </div>
-    </div>
-</nav>
->>>>>>>> main:Codigos_LM/Cliente/servicos.html
+    
     <section class="services-hero">
         <div class="container">
             <div class="row align-items-center">
@@ -223,7 +169,7 @@ include '../Classes/layout.php';
             <p class="lead mb-5">Entre em contato agora mesmo e agende uma avaliação sem compromisso!</p>
             <div class="d-flex justify-content-center gap-3">
                 <a href="contato.php" class="btn btn-primary btn-lg px-4">Fale Conosco</a>
-                <a href="tel:+5511999999999" class="btn btn-outline-light btn-lg px-4">
+                <a href="tel:+5519989391398" class="btn btn-outline-light btn-lg px-4">
                     <i class="fas fa-phone me-2"></i> Ligar Agora
                 </a>
             </div>
@@ -257,8 +203,8 @@ include '../Classes/layout.php';
                 <div class="col-md-4">
                     <h5>Contato</h5>
                     <ul class="list-unstyled">
-                        <li><i class="fas fa-phone me-2"></i> (XX) XXXX-XXXX</li>
-                        <li><i class="fas fa-envelope me-2"></i> contato@lminformatica.com.br</li>
+                        <li><i class="fas fa-phone me-2"></i>(19) 98939-1398 (WhatsApp)</li>
+                        <li><i class="fas fa-envelope me-2"></i> lmtecnologia1100@outlook</li>
                     </ul>
                 </div>
             </div>

@@ -1,3 +1,49 @@
+<?php
+session_start();
+
+if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
+    header("Location: entrar.php");
+    exit;
+}
+
+require_once '../Classes/conecta.php';
+require_once '../Classes/layout.php';
+require_once '../Classes/cliente.php'; 
+
+$conn = conecta_bd::getInstance()->getConnection();
+$mensagem = "";
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $senha_atual = $_POST['senha_atual'];
+    $nova_senha = $_POST['nova_senha'];
+    $confirma_senha = $_POST['confirma_senha'];
+    $id_usuario = $_SESSION['usuario_id']; 
+
+    if (empty($senha_atual) || empty($nova_senha) || empty($confirma_senha)) {
+        $mensagem = "<div class='alert alert-danger'>Preencha todos os campos.</div>";
+    } 
+    elseif ($nova_senha !== $confirma_senha) {
+        $mensagem = "<div class='alert alert-danger'>A nova senha e a confirmação não conferem.</div>";
+    } 
+    elseif (strlen($nova_senha) < 6) {
+        $mensagem = "<div class='alert alert-danger'>A nova senha deve ter no mínimo 6 caracteres.</div>";
+    } 
+    else {
+        
+        if (Cliente::verificarSenhaAtual($conn, $id_usuario, $senha_atual)) {
+            
+            if (Cliente::alterarSenha($conn, $id_usuario, $nova_senha)) {
+                $mensagem = "<div class='alert alert-success'>Senha alterada com sucesso!</div>";
+            } else {
+                $mensagem = "<div class='alert alert-danger'>Erro técnico ao atualizar senha.</div>";
+            }
+        } else {
+            $mensagem = "<div class='alert alert-danger'>A senha atual está incorreta.</div>";
+        }
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -92,41 +138,41 @@
 </head>
 <body>
 
-    <!-- Navbar -->
-    <nav class="navbar navbar-custom navbar-expand-lg navbar-dark fixed-top">
-        <div class="container-fluid">
-            <div class="fundo_imagem">
-                <a class="navbar-brand home-link" href="index.php">
-                    <img src="img/LMinformatica_logo_h (2).svg" alt="Logo">
-                </a>
-            </div>
-        </div>
-    </nav>
+    <?php echo $navbar; ?>
 
     <main class="container mt-5 pt-5">
         <div class="page-banner">Alterar Senha</div>
+        
+        <div style="max-width: 500px; margin: 0 auto;">
+            <?php echo $mensagem; ?>
+        </div>
+
         <div class="card-custom">
-            <form>
+            <form method="POST" action="">
                 <div class="mb-3">
                     <label for="senha-atual" class="form-label">Senha Atual</label>
-                    <input type="password" class="form-control" id="senha-atual">
+                    <input type="password" class="form-control" id="senha-atual" name="senha_atual" required>
                 </div>
                 <div class="mb-3">
                     <label for="nova-senha" class="form-label">Nova Senha</label>
-                    <input type="password" class="form-control" id="nova-senha">
+                    <input type="password" class="form-control" id="nova-senha" name="nova_senha" required>
                 </div>
                 <div class="mb-3">
                     <label for="confirmar-senha" class="form-label">Confirmar Nova Senha</label>
-                    <input type="password" class="form-control" id="confirmar-senha">
+                    <input type="password" class="form-control" id="confirmar-senha" name="confirma_senha" required>
                 </div>
+                
                 <button type="submit" class="btn-save">Alterar Senha</button>
-                <a href="perfil.html" class="btn-back">Voltar ao Perfil</a>
+                
+                <a href="perfil_cliente.php" class="btn-back">Voltar ao Perfil</a>
             </form>
         </div>
     </main>
 
-    <footer class="fixed-bottom">
-        &copy; 2025 LM Informática. Todos os direitos reservados.
+    <footer>
+        <div class="container">
+            <p class="mb-0">&copy; 2025 LM Informática. Todos os direitos reservados.</p>
+        </div>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
